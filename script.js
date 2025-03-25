@@ -85,10 +85,6 @@ document.addEventListener('DOMContentLoaded', function() {
             discount = 0.2; // 20% discount
             discountAppliedElement.textContent = '20% OFF';
             discountAppliedElement.className = 'text-success fw-bold';
-        } else if (totalQuantity === 2) {
-            discount = 0.05; // 5% discount
-            discountAppliedElement.textContent = '5% OFF';
-            discountAppliedElement.className = 'text-success';
         } else {
             discountAppliedElement.textContent = 'None';
             discountAppliedElement.className = '';
@@ -174,8 +170,6 @@ document.addEventListener('DOMContentLoaded', function() {
         let discount = 0;
         if (totalQuantity >= 3) {
             discount = 0.2; // 20% discount
-        } else if (totalQuantity === 2) {
-            discount = 0.05; // 5% discount
         }
         
         const discountedUnitPrice = basePrice * (1 - discount);
