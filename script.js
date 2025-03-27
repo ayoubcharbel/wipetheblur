@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
         green: 0
     };
     const basePrice = 4.99;
-    const whatsappNumber = "96176117811";
+    const whatsappNumber = "96176117811"; // Updated WhatsApp number with country code
     const colorNames = {
         red: 'Red',
         blue: 'Blue',
