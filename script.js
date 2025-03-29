@@ -160,10 +160,10 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Get selected payment method
         let paymentMethod = "Cash on Delivery";
-        if (document.getElementById('whishMoney').checked) {
-            paymentMethod = "Whish Money";
-        } else if (document.getElementById('omt').checked) {
-            paymentMethod = "OMT";
+        if (document.getElementById('omtWhish').checked) {
+            paymentMethod = "OMT or Whish Money";
+        } else if (document.getElementById('usdt').checked) {
+            paymentMethod = "USDT (TRC20)";
         }
         
         // Calculate discount based on total quantity
