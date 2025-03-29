@@ -285,58 +285,150 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize order summary
     updateOrderSummary();
+
+    // Notification System
+    const notificationContainer = document.querySelector('.notification-container');
+    const notifications = [
+        "Bassam from Sin El Fil just bought 2 Wipe the Blur.",
+        "Aya from Dekwaneh just bought 1 Wipe the Blur.",
+        "Sami from Jdeideh just bought 3 Wipe the Blur.",
+        "Beatrice from Baouchriyeh just bought 2 Wipe the Blur.",
+        "Perla from Bourj Hammoud just bought 1 Wipe the Blur.",
+        "Zaki from Hazmieh just bought 3 Wipe the Blur.",
+        "Angela from Furn El Chebbak just bought 2 Wipe the Blur.",
+        "Charbel from Ain El Remmaneh just bought 1 Wipe the Blur.",
+        "Zeina from Ashrafieh just bought 3 Wipe the Blur.",
+        "Ayman from Hamra just bought 2 Wipe the Blur.",
+        "Dalal from Verdun just bought 1 Wipe the Blur.",
+        "Wafaa from Jounieh just bought 3 Wipe the Blur.",
+        "Samir from Kaslik just bought 2 Wipe the Blur.",
+        "Racha from Zouk Mosbeh just bought 1 Wipe the Blur.",
+        "Diana from Zouk Mikael just bought 3 Wipe the Blur.",
+        "Youssef from Adonis just bought 2 Wipe the Blur.",
+        "Nancy from Ghazir just bought 1 Wipe the Blur.",
+        "Carla from Jeita just bought 3 Wipe the Blur.",
+        "Nadine from Jbeil just bought 2 Wipe the Blur.",
+        "Hassan from Amchit just bought 1 Wipe the Blur.",
+        "Christina from Hrajel just bought 3 Wipe the Blur.",
+        "Joelle from Feitroun just bought 2 Wipe the Blur.",
+        "Joseph from Faraya just bought 1 Wipe the Blur.",
+        "Mirna from Baskinta just bought 3 Wipe the Blur.",
+        "Michel from Dhour Choueir just bought 2 Wipe the Blur.",
+        "Jad from Broummana just bought 1 Wipe the Blur.",
+        "Isabelle from Deir El Qamar just bought 3 Wipe the Blur.",
+        "Ibrahim from Batroun just bought 2 Wipe the Blur.",
+        "Layal from Chekka just bought 1 Wipe the Blur.",
+        "Salma from Amioun just bought 3 Wipe the Blur.",
+        "Omar from Koura just bought 2 Wipe the Blur.",
+        "Maguy from Tripoli just bought 1 Wipe the Blur.",
+        "Christelle from Zgharta just bought 3 Wipe the Blur.",
+        "Joumana from Ehden just bought 2 Wipe the Blur.",
+        "Rita from Bcharre just bought 1 Wipe the Blur.",
+        "Fadi from Zahle just bought 3 Wipe the Blur.",
+        "Marwan from Baalbek just bought 2 Wipe the Blur.",
+        "Ali from Saida just bought 1 Wipe the Blur.",
+        "Fatima from Tyre just bought 3 Wipe the Blur.",
+        "Natalie from Nabatieh just bought 2 Wipe the Blur.",
+        "Bilal from Marjayoun just bought 1 Wipe the Blur.",
+        "Ghina from Dbayeh just bought 3 Wipe the Blur.",
+        "Wassim from Jal el Dib just bought 2 Wipe the Blur.",
+        "Karen from Antellias just bought 1 Wipe the Blur.",
+        "Imane from Zalka just bought 3 Wipe the Blur.",
+        "Georges from Sin El Fil just bought 2 Wipe the Blur.",
+        "Hiba from Dekwaneh just bought 1 Wipe the Blur.",
+        "Mostafa from Jdeideh just bought 3 Wipe the Blur.",
+        "Lina from Baouchriyeh just bought 2 Wipe the Blur.",
+        "Antoine from Bourj Hammoud just bought 1 Wipe the Blur.",
+        "Mohamad from Hazmieh just bought 3 Wipe the Blur.",
+        "Abed from Furn El Chebbak just bought 2 Wipe the Blur.",
+        "Nour from Ain El Remmaneh just bought 1 Wipe the Blur.",
+        "Amira from Ashrafieh just bought 3 Wipe the Blur.",
+        "Lea from Hamra just bought 2 Wipe the Blur.",
+        "Viviane from Verdun just bought 1 Wipe the Blur.",
+        "Rania from Jounieh just bought 3 Wipe the Blur.",
+        "Tamara from Kaslik just bought 2 Wipe the Blur.",
+        "Elie from Zouk Mosbeh just bought 1 Wipe the Blur.",
+        "Karim from Zouk Mikael just bought 3 Wipe the Blur.",
+        "Walid from Adonis just bought 2 Wipe the Blur.",
+        "Cynthia from Ghazir just bought 1 Wipe the Blur.",
+        "Maya from Jeita just bought 3 Wipe the Blur.",
+        "Yara from Jbeil just bought 2 Wipe the Blur.",
+        "Tarek from Amchit just bought 1 Wipe the Blur.",
+        "Rim from Hrajel just bought 3 Wipe the Blur.",
+        "Rabih from Feitroun just bought 2 Wipe the Blur.",
+        "Farah from Faraya just bought 1 Wipe the Blur.",
+        "Rafic from Baskinta just bought 3 Wipe the Blur.",
+        "Adel from Dhour Choueir just bought 2 Wipe the Blur.",
+        "Anis from Broummana just bought 1 Wipe the Blur.",
+        "Sara from Deir El Qamar just bought 3 Wipe the Blur.",
+        "Gaby from Batroun just bought 2 Wipe the Blur.",
+        "Lara from Chekka just bought 1 Wipe the Blur.",
+        "Khaled from Amioun just bought 3 Wipe the Blur.",
+        "Amine from Koura just bought 2 Wipe the Blur.",
+        "Tony from Tripoli just bought 1 Wipe the Blur.",
+        "Hind from Zgharta just bought 3 Wipe the Blur.",
+        "Rami from Ehden just bought 2 Wipe the Blur.",
+        "Ahmad from Bcharre just bought 1 Wipe the Blur.",
+        "Jana from Zahle just bought 3 Wipe the Blur.",
+        "Nicolas from Baalbek just bought 2 Wipe the Blur.",
+        "Elissa from Saida just bought 1 Wipe the Blur.",
+        "Ziad from Tyre just bought 3 Wipe the Blur.",
+        "Malek from Nabatieh just bought 2 Wipe the Blur.",
+        "Aline from Marjayoun just bought 1 Wipe the Blur.",
+        "Nader from Dbayeh just bought 3 Wipe the Blur.",
+        "Zahra from Jal el Dib just bought 2 Wipe the Blur.",
+        "Samar from Antellias just bought 1 Wipe the Blur.",
+        "Mira from Zalka just bought 3 Wipe the Blur."
+    ];
+
+    // Keep track of used notifications
+    let usedNotifications = [...notifications];
+
+    function showNotification() {
+        const notification = document.createElement('div');
+        notification.className = 'notification';
+        
+        // If all notifications have been used, reset the array
+        if (usedNotifications.length === 0) {
+            usedNotifications = [...notifications];
+        }
+        
+        // Get random notification from unused notifications
+        const randomIndex = Math.floor(Math.random() * usedNotifications.length);
+        const message = usedNotifications[randomIndex];
+        
+        // Remove the used notification from the array
+        usedNotifications.splice(randomIndex, 1);
+        
+        notification.innerHTML = `
+            <i class="fas fa-shopping-cart"></i>
+            <span class="notification-text">${message}</span>
+        `;
+        
+        notificationContainer.appendChild(notification);
+        
+        // Trigger reflow
+        notification.offsetHeight;
+        
+        notification.classList.add('show');
+        
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                notification.remove();
+            }, 500);
+        }, 5000);
+    }
+
+    // Show first notification after 2 seconds
+    setTimeout(showNotification, 2000);
+
+    // Show subsequent notifications every 30 seconds
+    setInterval(showNotification, 30000);
 });
 
 // Initialize tooltips
 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
 var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
     return new bootstrap.Tooltip(tooltipTriggerEl)
-});
-
-// Notification System
-const notificationContainer = document.querySelector('.notification-container');
-const notifications = [
-    "Sarah from Beirut bought 3",
-    "Mike from Tripoli bought 2",
-    "Layla from Saida bought 1",
-    "Karim from Zahle bought 4",
-    "Maya from Jounieh bought 2",
-    "Samir from Tyre bought 3",
-    "Rana from Baabda bought 1",
-    "Tony from Byblos bought 5",
-    "Hala from Baalbek bought 2",
-    "Fadi from Sidon bought 3"
-];
-
-let currentNotificationIndex = 0;
-
-function showNotification() {
-    const notification = document.createElement('div');
-    notification.className = 'notification';
-    notification.innerHTML = `
-        <i class="fas fa-shopping-cart"></i>
-        <span class="notification-text">${notifications[currentNotificationIndex]}</span>
-    `;
-    
-    notificationContainer.appendChild(notification);
-    
-    // Trigger reflow
-    notification.offsetHeight;
-    
-    notification.classList.add('show');
-    
-    setTimeout(() => {
-        notification.classList.remove('show');
-        setTimeout(() => {
-            notification.remove();
-        }, 500);
-    }, 5000);
-    
-    currentNotificationIndex = (currentNotificationIndex + 1) % notifications.length;
-}
-
-// Show first notification immediately
-showNotification();
-
-// Show subsequent notifications every 30 seconds
-setInterval(showNotification, 30000); 
+}); 
