@@ -1184,7 +1184,7 @@ section {
     text-decoration: none;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     transition: all 0.3s ease;
-    z-index: 1000;
+    z-index: 10000;
 }
 
 .whatsapp-support:hover {
@@ -1217,5 +1217,63 @@ section {
     
     .whatsapp-support span {
         font-size: 8px;
+    }
+}
+
+/* Notification System */
+.notification-container {
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    z-index: 9999;
+    max-width: 300px;
+}
+
+.notification {
+    background-color: white;
+    color: var(--primary-color);
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transform: translateX(120%);
+    transition: transform 0.5s ease;
+    opacity: 0;
+    margin-bottom: 10px;
+}
+
+.notification.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.notification i {
+    font-size: 1.2rem;
+    color: var(--primary-color);
+}
+
+.notification-text {
+    font-weight: 600;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+    .notification-container {
+        bottom: 90px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+    
+    .notification {
+        padding: 12px 20px;
+        margin-bottom: 8px;
+    }
+    
+    .notification-text {
+        font-size: 0.9rem;
     }
 } 
