@@ -294,132 +294,49 @@ var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
 });
 
 // Notification System
+const notificationContainer = document.querySelector('.notification-container');
 const notifications = [
-    "Sara from Sin El Fil just bought 2 Wipe the Blur.",
-    "Nadine from Dekwaneh just bought 1 Wipe the Blur.",
-    "Christelle from Jdeideh just bought 3 Wipe the Blur.",
-    "Youssef from Baouchriyeh just bought 2 Wipe the Blur.",
-    "Ali from Dora just bought 1 Wipe the Blur.",
-    "Joseph from Bourj Hammoud just bought 3 Wipe the Blur.",
-    "Abed from Hazmieh just bought 2 Wipe the Blur.",
-    "Adel from Hadath just bought 1 Wipe the Blur.",
-    "Tarek from Furn El Chebbak just bought 3 Wipe the Blur.",
-    "Antoine from Ain El Remmaneh just bought 2 Wipe the Blur.",
-    "Elissa from Badaro just bought 1 Wipe the Blur.",
-    "Rami from Ashrafieh just bought 3 Wipe the Blur.",
-    "Saad from Hamra just bought 2 Wipe the Blur.",
-    "Hind from Verdun just bought 1 Wipe the Blur.",
-    "Fatima from Jounieh just bought 3 Wipe the Blur.",
-    "Aline from Kaslik just bought 2 Wipe the Blur.",
-    "Chadi from Zouk Mosbeh just bought 1 Wipe the Blur.",
-    "Fadi from Zouk Mikael just bought 3 Wipe the Blur.",
-    "Christina from Adonis just bought 2 Wipe the Blur.",
-    "Zaki from Ghazir just bought 1 Wipe the Blur.",
-    "Beatrice from Haret Sakher just bought 3 Wipe the Blur.",
-    "Camille from Jeita just bought 2 Wipe the Blur.",
-    "Mohamad from Jbeil just bought 1 Wipe the Blur.",
-    "Isabelle from Amsheet just bought 3 Wipe the Blur.",
-    "Ayman from Hrajel just bought 2 Wipe the Blur.",
-    "Mira from Feitroun just bought 1 Wipe the Blur.",
-    "Wassim from Faraya just bought 3 Wipe the Blur.",
-    "Lara from Baskinta just bought 2 Wipe the Blur.",
-    "Malek from Bickfaya just bought 1 Wipe the Blur.",
-    "Maguy from Dhour Choueir just bought 3 Wipe the Blur.",
-    "Yara from Baabdat just bought 2 Wipe the Blur.",
-    "Tamara from Broummana just bought 1 Wipe the Blur.",
-    "Rita from Baakline just bought 3 Wipe the Blur.",
-    "Diana from Deir El Qamar just bought 2 Wipe the Blur.",
-    "Ahmad from Batroun just bought 1 Wipe the Blur.",
-    "Nicolas from Chekka just bought 3 Wipe the Blur.",
-    "Jana from Amioun just bought 2 Wipe the Blur.",
-    "Mostafa from Koura just bought 1 Wipe the Blur.",
-    "Tawfiq from Tripoli just bought 3 Wipe the Blur.",
-    "Khaled from Zgharta just bought 2 Wipe the Blur.",
-    "Sami from Ehden just bought 1 Wipe the Blur.",
-    "Rafic from Bcharre just bought 3 Wipe the Blur.",
-    "Mirna from Qannoubine just bought 2 Wipe the Blur.",
-    "Natalie from Zahle just bought 1 Wipe the Blur.",
-    "Amira from Chtaura just bought 3 Wipe the Blur.",
-    "Rim from Taanayel just bought 2 Wipe the Blur.",
-    "Anis from Baalbek just bought 1 Wipe the Blur.",
-    "Hadi from Qab Elias just bought 3 Wipe the Blur.",
-    "Hiba from Anjar just bought 2 Wipe the Blur.",
-    "Ghina from Saida just bought 1 Wipe the Blur.",
-    "Lea from Tyre just bought 3 Wipe the Blur.",
-    "Angela from Jezzine just bought 2 Wipe the Blur.",
-    "Dalal from Nabatieh just bought 1 Wipe the Blur.",
-    "Perla from Marjayoun just bought 3 Wipe the Blur.",
-    "Amine from Bint Jbeil just bought 2 Wipe the Blur.",
-    "Marwan from Sin El Fil just bought 1 Wipe the Blur.",
-    "Farah from Dekwaneh just bought 3 Wipe the Blur.",
-    "Walid from Jdeideh just bought 2 Wipe the Blur.",
-    "Nancy from Baouchriyeh just bought 1 Wipe the Blur.",
-    "Karim from Dora just bought 3 Wipe the Blur.",
-    "Georges from Bourj Hammoud just bought 2 Wipe the Blur.",
-    "Joumana from Hazmieh just bought 1 Wipe the Blur.",
-    "Aya from Hadath just bought 3 Wipe the Blur.",
-    "Ziad from Furn El Chebbak just bought 2 Wipe the Blur.",
-    "Rabih from Ain El Remmaneh just bought 1 Wipe the Blur.",
-    "Maya from Badaro just bought 3 Wipe the Blur.",
-    "Carla from Ashrafieh just bought 2 Wipe the Blur.",
-    "Charbel from Hamra just bought 1 Wipe the Blur.",
-    "Tony from Verdun just bought 3 Wipe the Blur.",
-    "Viviane from Jounieh just bought 2 Wipe the Blur.",
-    "Bilal from Kaslik just bought 1 Wipe the Blur.",
-    "Cynthia from Zouk Mosbeh just bought 3 Wipe the Blur.",
-    "Rania from Zouk Mikael just bought 2 Wipe the Blur.",
-    "Gaby from Adonis just bought 1 Wipe the Blur.",
-    "Layal from Ghazir just bought 3 Wipe the Blur.",
-    "Michel from Haret Sakher just bought 2 Wipe the Blur.",
-    "Samar from Jeita just bought 1 Wipe the Blur.",
-    "Joelle from Jbeil just bought 3 Wipe the Blur.",
-    "Nader from Amsheet just bought 2 Wipe the Blur.",
-    "Hassan from Hrajel just bought 1 Wipe the Blur.",
-    "Zeina from Feitroun just bought 3 Wipe the Blur.",
-    "Elie from Faraya just bought 2 Wipe the Blur.",
-    "Racha from Baskinta just bought 1 Wipe the Blur.",
-    "Omar from Bickfaya just bought 3 Wipe the Blur.",
-    "Jad from Dhour Choueir just bought 2 Wipe the Blur.",
-    "Nour from Baabdat just bought 1 Wipe the Blur.",
-    "Karen from Broummana just bought 3 Wipe the Blur.",
-    "Bassam from Baakline just bought 2 Wipe the Blur.",
-    "Ibrahim from Deir El Qamar just bought 1 Wipe the Blur.",
-    "Samir from Batroun just bought 3 Wipe the Blur."
+    "Sarah from Beirut bought 3",
+    "Mike from Tripoli bought 2",
+    "Layla from Saida bought 1",
+    "Karim from Zahle bought 4",
+    "Maya from Jounieh bought 2",
+    "Samir from Tyre bought 3",
+    "Rana from Baabda bought 1",
+    "Tony from Byblos bought 5",
+    "Hala from Baalbek bought 2",
+    "Fadi from Sidon bought 3"
 ];
 
-// Keep track of used notifications
-let usedNotifications = [...notifications];
+let currentNotificationIndex = 0;
 
 function showNotification() {
-    const notification = document.querySelector('.notification');
-    const notificationText = document.querySelector('.notification-text');
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    notification.innerHTML = `
+        <i class="fas fa-shopping-cart"></i>
+        <span class="notification-text">${notifications[currentNotificationIndex]}</span>
+    `;
     
-    // If all notifications have been used, reset the array
-    if (usedNotifications.length === 0) {
-        usedNotifications = [...notifications];
-    }
+    notificationContainer.appendChild(notification);
     
-    // Get random notification from unused notifications
-    const randomIndex = Math.floor(Math.random() * usedNotifications.length);
-    const message = usedNotifications[randomIndex];
+    // Trigger reflow
+    notification.offsetHeight;
     
-    // Remove the used notification from the array
-    usedNotifications.splice(randomIndex, 1);
-    
-    // Update text
-    notificationText.textContent = message;
-    
-    // Show notification
     notification.classList.add('show');
     
-    // Hide after 5 seconds
     setTimeout(() => {
         notification.classList.remove('show');
+        setTimeout(() => {
+            notification.remove();
+        }, 500);
     }, 5000);
+    
+    currentNotificationIndex = (currentNotificationIndex + 1) % notifications.length;
 }
 
-// Show first notification after 2 seconds
-setTimeout(showNotification, 2000);
+// Show first notification immediately
+showNotification();
 
-// Show subsequent notifications every 10 seconds
-setInterval(showNotification, 10000); 
+// Show subsequent notifications every 30 seconds
+setInterval(showNotification, 30000); 
