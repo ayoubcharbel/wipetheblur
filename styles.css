@@ -663,6 +663,10 @@ section {
 }
 
 /* Modal */
+.modal {
+    z-index: 10500;
+}
+
 .modal-content {
     border-radius: 15px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
