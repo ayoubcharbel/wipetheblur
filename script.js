@@ -1,239 +1,188 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize variables
-    const colorQuantities = {
-        red: 0,
-        blue: 0,
-        yellow: 0,
-        green: 0
-    };
-    const basePrice = 4.99;
-    const whatsappNumber = "96176117811"; // Updated WhatsApp number with country code
-    const colorNames = {
-        red: 'Red',
-        blue: 'Blue',
-        yellow: 'Yellow',
-        green: 'Green'
-    };
-    const colorThemes = {
-        red: { color: '#e74c3c', rgb: '231, 76, 60' },
-        blue: { color: '#3498db', rgb: '52, 152, 219' },
-        yellow: { color: '#f1c40f', rgb: '241, 196, 15' },
-        green: { color: '#2ecc71', rgb: '46, 204, 113' }
+    // Bot Status Management
+    let botData = {
+        status: 'Checking...',
+        totalUsers: 0,
+        totalMessages: 0,
+        totalStickers: 0,
+        totalActivity: 0,
+        botActive: false,
+        lastUpdated: null
     };
 
-    // Handle quantity adjustments
-    const quantityInputs = document.querySelectorAll('.color-quantity');
-    const quantityButtons = document.querySelectorAll('.quantity-btn');
-    
-    // Set up quantity button listeners
-    quantityButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const color = this.getAttribute('data-color');
-            const action = this.getAttribute('data-action');
-            const input = document.getElementById(`${color}Quantity`);
-            let value = parseInt(input.value);
+    // DOM Elements for status updates
+    const heroStats = {
+        users: document.getElementById('totalUsers'),
+        messages: document.getElementById('totalMessages'),
+        stickers: document.getElementById('totalStickers')
+    };
+
+    const dashboardStats = {
+        users: document.getElementById('dashboardUsers'),
+        messages: document.getElementById('dashboardMessages'),
+        stickers: document.getElementById('dashboardStickers'),
+        activity: document.getElementById('dashboardActivity')
+    };
+
+    const statusElements = {
+        indicator: document.getElementById('statusIndicator'),
+        text: document.getElementById('statusText'),
+        lastUpdated: document.getElementById('lastUpdated'),
+        footerStatus: document.getElementById('footerStatus'),
+        footerUsers: document.getElementById('footerUsers')
+    };
+
+    // Fetch bot status from API
+    async function fetchBotStatus() {
+        try {
+            console.log('Fetching bot status...');
+            const response = await fetch('/bot-status');
             
-            if (action === 'increase' && value < 10) {
-                value++;
-            } else if (action === 'decrease' && value > 0) {
-                value--;
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
             
-            input.value = value;
-            colorQuantities[color] = value;
-            updateOrderSummary();
-        });
-    });
-    
-    // Set up direct input changes
-    quantityInputs.forEach(input => {
-        input.addEventListener('change', function() {
-            const color = this.getAttribute('data-color');
-            let value = parseInt(this.value);
+            const data = await response.json();
+            console.log('Bot status received:', data);
             
-            // Enforce min and max
-            if (isNaN(value) || value < 0) {
-                value = 0;
-            } else if (value > 10) {
-                value = 10;
-            }
+            // Update botData
+            botData = {
+                status: data.status || 'Unknown',
+                totalUsers: data.totalUsers || 0,
+                totalMessages: data.totalMessages || 0,
+                totalStickers: data.totalStickers || 0,
+                totalActivity: data.totalActivity || (data.totalMessages + data.totalStickers) || 0,
+                botActive: data.botActive || false,
+                lastUpdated: new Date()
+            };
             
-            this.value = value;
-            colorQuantities[color] = value;
-            updateOrderSummary();
-        });
-    });
-    
-    // Function to update the order summary
-    function updateOrderSummary() {
-        const summaryItemsContainer = document.getElementById('summaryItems');
-        const totalQuantityElement = document.getElementById('totalQuantity');
-        const discountAppliedElement = document.getElementById('discountApplied');
-        const subtotalPriceElement = document.getElementById('subtotalPrice');
-        const totalPriceElement = document.getElementById('totalPrice');
-        
-        // Delivery fee constant
-        const deliveryFee = 3.99;
-        
-        // Calculate total quantity
-        const totalQuantity = Object.values(colorQuantities).reduce((sum, qty) => sum + qty, 0);
-        totalQuantityElement.textContent = totalQuantity;
-        
-        // Apply discount based on total quantity
-        let discount = 0;
-        if (totalQuantity >= 3) {
-            discount = 0.2; // 20% discount
-            discountAppliedElement.textContent = '20% OFF';
-            discountAppliedElement.className = 'text-success fw-bold';
-        } else {
-            discountAppliedElement.textContent = 'None';
-            discountAppliedElement.className = '';
-        }
-        
-        // Calculate subtotal with discount
-        const discountedUnitPrice = basePrice * (1 - discount);
-        const subtotal = (discountedUnitPrice * totalQuantity).toFixed(2);
-        subtotalPriceElement.textContent = `$${subtotal}`;
-        
-        // Calculate total price (subtotal + delivery fee)
-        const totalPrice = totalQuantity > 0 ? (parseFloat(subtotal) + deliveryFee).toFixed(2) : '0.00';
-        totalPriceElement.textContent = `$${totalPrice}`;
-        
-        // Update summary items
-        if (totalQuantity === 0) {
-            summaryItemsContainer.innerHTML = '<p class="text-muted text-center">Add products to your cart</p>';
-        } else {
-            let summaryHTML = '';
+            updateUI();
+            return true;
+        } catch (error) {
+            console.error('Error fetching bot status:', error);
             
-            for (const color in colorQuantities) {
-                if (colorQuantities[color] > 0) {
-                    const itemPrice = (discountedUnitPrice * colorQuantities[color]).toFixed(2);
-                    summaryHTML += `
-                        <div class="summary-item">
-                            <div>
-                                <span class="summary-color-indicator" style="background-color: ${colorThemes[color].color}"></span>
-                                ${colorNames[color]} × ${colorQuantities[color]}
-                            </div>
-                            <div>$${itemPrice}</div>
-                        </div>
-                    `;
-                }
-            }
+            // Update with error state
+            botData = {
+                status: 'Connection Error',
+                totalUsers: '-',
+                totalMessages: '-',
+                totalStickers: '-',
+                totalActivity: '-',
+                botActive: false,
+                lastUpdated: new Date()
+            };
             
-            summaryItemsContainer.innerHTML = summaryHTML;
-        }
-        
-        // Update total visibility based on quantity
-        if (totalQuantity > 0) {
-            document.querySelector('.order-summary').classList.remove('d-none');
-        } else {
-            document.querySelector('.order-summary').classList.add('d-none');
+            updateUI();
+            return false;
         }
     }
 
-    // Handle form submission with WhatsApp redirect
-    const purchaseForm = document.getElementById('confirmPurchase');
-    const customerName = document.getElementById('customerName');
-    const customerPhone = document.getElementById('customerPhone');
-    const customerAddress = document.getElementById('customerAddress');
-    const purchaseModal = new bootstrap.Modal(document.getElementById('purchaseModal'));
+    // Update all UI elements with current bot data
+    function updateUI() {
+        // Update hero stats
+        if (heroStats.users) {
+            heroStats.users.textContent = formatNumber(botData.totalUsers);
+        }
+        if (heroStats.messages) {
+            heroStats.messages.textContent = formatNumber(botData.totalMessages);
+        }
+        if (heroStats.stickers) {
+            heroStats.stickers.textContent = formatNumber(botData.totalStickers);
+        }
 
-    purchaseForm.addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        // Delivery fee constant
-        const deliveryFee = 3.99;
-        
-        // Calculate total quantity
-        const totalQuantity = Object.values(colorQuantities).reduce((sum, qty) => sum + qty, 0);
-        
-        // Form validation
-        if (totalQuantity === 0) {
-            alert('Please select at least one product.');
-            return;
+        // Update dashboard stats
+        if (dashboardStats.users) {
+            dashboardStats.users.textContent = formatNumber(botData.totalUsers);
         }
-        
-        if (!customerName.value || !customerPhone.value || !customerAddress.value) {
-            alert('Please fill in all the required fields.');
-            return;
+        if (dashboardStats.messages) {
+            dashboardStats.messages.textContent = formatNumber(botData.totalMessages);
         }
-        
-        // Get selected payment method
-        let paymentMethod = "Cash on Delivery";
-        if (document.getElementById('omtWhish').checked) {
-            paymentMethod = "OMT or Whish Money";
-        } else if (document.getElementById('usdt').checked) {
-            paymentMethod = "USDT (TRC20)";
+        if (dashboardStats.stickers) {
+            dashboardStats.stickers.textContent = formatNumber(botData.totalStickers);
         }
-        
-        // Calculate discount based on total quantity
-        let discount = 0;
-        if (totalQuantity >= 3) {
-            discount = 0.2; // 20% discount
+        if (dashboardStats.activity) {
+            dashboardStats.activity.textContent = formatNumber(botData.totalActivity);
         }
-        
-        const discountedUnitPrice = basePrice * (1 - discount);
-        const subtotal = (discountedUnitPrice * totalQuantity).toFixed(2);
-        const totalPrice = (parseFloat(subtotal) + deliveryFee).toFixed(2);
-        
-        // Create color order details
-        let orderDetails = '';
-        for (const color in colorQuantities) {
-            if (colorQuantities[color] > 0) {
-                orderDetails += `- ${colorNames[color]}: ${colorQuantities[color]} units\n`;
+
+        // Update status indicator
+        if (statusElements.indicator) {
+            const circle = statusElements.indicator.querySelector('i');
+            if (botData.botActive) {
+                circle.className = 'fas fa-circle text-success';
+                statusElements.indicator.className = 'status-indicator online';
+            } else {
+                circle.className = 'fas fa-circle text-danger';
+                statusElements.indicator.className = 'status-indicator offline';
             }
         }
-        
-        // Create WhatsApp message
-        const message = 
-            `Hello! I'd like to order Wipe the Blur:\n\n` +
-            `Name: ${customerName.value}\n` +
-            `Phone: ${customerPhone.value}\n` +
-            `Address: ${customerAddress.value}\n\n` +
-            `Order Details:\n` +
-            `${orderDetails}` +
-            `Total Quantity: ${totalQuantity}\n` +
-            `Subtotal: $${subtotal}\n` +
-            `Delivery Fee: $3.99 (All over Lebanon)\n` +
-            `Total Price: $${totalPrice}\n` +
-            `Payment: ${paymentMethod}\n\n` +
-            `Thank you!`;
-        
-        // Encode message for URL
-        const encodedMessage = encodeURIComponent(message);
-        
-        // Create WhatsApp URL
-        const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
-        
-        // Hide purchase modal
-        purchaseModal.hide();
-        
-        // Open WhatsApp in new tab
-        window.open(whatsappURL, '_blank');
-        
-        // Reset form and quantities
-        document.querySelectorAll('input[type=text], input[type=tel], textarea').forEach(input => {
-            input.value = '';
-        });
-        
-        // Reset color quantities
-        quantityInputs.forEach(input => {
-            input.value = 0;
-            const color = input.getAttribute('data-color');
-            colorQuantities[color] = 0;
-        });
-    });
 
-    // Initialize when modal is shown
-    document.getElementById('purchaseModal').addEventListener('show.bs.modal', function () {
-        // Reset all quantities to 0 if not already set
-        quantityInputs.forEach(input => {
-            input.value = colorQuantities[input.getAttribute('data-color')];
-        });
+        // Update status text
+        if (statusElements.text) {
+            statusElements.text.textContent = botData.botActive ? 'Bot Online' : 'Bot Offline';
+        }
+
+        // Update last updated time
+        if (statusElements.lastUpdated && botData.lastUpdated) {
+            statusElements.lastUpdated.textContent = formatTime(botData.lastUpdated);
+        }
+
+        // Update footer status
+        if (statusElements.footerStatus) {
+            statusElements.footerStatus.textContent = botData.botActive ? 'Online' : 'Offline';
+            statusElements.footerStatus.className = botData.botActive ? 'text-success' : 'text-danger';
+        }
+
+        // Update footer users
+        if (statusElements.footerUsers) {
+            statusElements.footerUsers.textContent = formatNumber(botData.totalUsers);
+        }
+
+        console.log('UI updated with bot data:', botData);
+    }
+
+    // Format numbers for display
+    function formatNumber(num) {
+        if (num === '-' || num === null || num === undefined) return '-';
+        if (typeof num !== 'number') return num;
         
-        // Update order summary
-        updateOrderSummary();
-    });
+        if (num >= 1000000) {
+            return (num / 1000000).toFixed(1) + 'M';
+        } else if (num >= 1000) {
+            return (num / 1000).toFixed(1) + 'K';
+        }
+        return num.toString();
+    }
+
+    // Format time for display
+    function formatTime(date) {
+        if (!date) return '-';
+        const now = new Date();
+        const diff = Math.floor((now - date) / 1000); // seconds
+        
+        if (diff < 60) return 'Just now';
+        if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+        if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+        return Math.floor(diff / 86400) + 'd ago';
+    }
+
+    // Initialize bot status fetching
+    function initBotStatus() {
+        // Fetch immediately
+        fetchBotStatus();
+        
+        // Set up automatic refresh every 30 seconds
+        setInterval(fetchBotStatus, 30000);
+        
+        // Update time display every minute
+        setInterval(() => {
+            if (statusElements.lastUpdated && botData.lastUpdated) {
+                statusElements.lastUpdated.textContent = formatTime(botData.lastUpdated);
+            }
+        }, 60000);
+    }
+
+    // Initialize bot status
+    initBotStatus();
 
     // Navbar scroll behavior
     const navbar = document.querySelector('.navbar');
@@ -266,7 +215,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Add animation to elements when they come into view
-    const animateElements = document.querySelectorAll('.pricing-content, .hero h1, .hero p, .hero-buttons, .feature-card, .review-card, .step-card');
+    const animateElements = document.querySelectorAll('.feature-card, .command-card, .step-item, .status-card, .hero h1, .hero p, .hero-buttons');
     
     function checkScroll() {
         const triggerBottom = window.innerHeight / 5 * 4;
@@ -283,125 +232,30 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('scroll', checkScroll);
     checkScroll(); // Check on initial load
 
-    // Initialize order summary
-    updateOrderSummary();
-
-    // Notification System
+    // Bot activity notifications
     const notificationContainer = document.querySelector('.notification-container');
-    const notifications = [
-        "Bassam from Sin El Fil just bought 2 Wipe the Blur.",
-        "Aya from Dekwaneh just bought 1 Wipe the Blur.",
-        "Sami from Jdeideh just bought 3 Wipe the Blur.",
-        "Beatrice from Baouchriyeh just bought 2 Wipe the Blur.",
-        "Perla from Bourj Hammoud just bought 1 Wipe the Blur.",
-        "Zaki from Hazmieh just bought 3 Wipe the Blur.",
-        "Angela from Furn El Chebbak just bought 2 Wipe the Blur.",
-        "Charbel from Ain El Remmaneh just bought 1 Wipe the Blur.",
-        "Zeina from Ashrafieh just bought 3 Wipe the Blur.",
-        "Ayman from Hamra just bought 2 Wipe the Blur.",
-        "Dalal from Verdun just bought 1 Wipe the Blur.",
-        "Wafaa from Jounieh just bought 3 Wipe the Blur.",
-        "Samir from Kaslik just bought 2 Wipe the Blur.",
-        "Racha from Zouk Mosbeh just bought 1 Wipe the Blur.",
-        "Diana from Zouk Mikael just bought 3 Wipe the Blur.",
-        "Youssef from Adonis just bought 2 Wipe the Blur.",
-        "Nancy from Ghazir just bought 1 Wipe the Blur.",
-        "Carla from Jeita just bought 3 Wipe the Blur.",
-        "Nadine from Jbeil just bought 2 Wipe the Blur.",
-        "Hassan from Amchit just bought 1 Wipe the Blur.",
-        "Christina from Hrajel just bought 3 Wipe the Blur.",
-        "Joelle from Feitroun just bought 2 Wipe the Blur.",
-        "Joseph from Faraya just bought 1 Wipe the Blur.",
-        "Mirna from Baskinta just bought 3 Wipe the Blur.",
-        "Michel from Dhour Choueir just bought 2 Wipe the Blur.",
-        "Jad from Broummana just bought 1 Wipe the Blur.",
-        "Isabelle from Deir El Qamar just bought 3 Wipe the Blur.",
-        "Ibrahim from Batroun just bought 2 Wipe the Blur.",
-        "Layal from Chekka just bought 1 Wipe the Blur.",
-        "Salma from Amioun just bought 3 Wipe the Blur.",
-        "Omar from Koura just bought 2 Wipe the Blur.",
-        "Maguy from Tripoli just bought 1 Wipe the Blur.",
-        "Christelle from Zgharta just bought 3 Wipe the Blur.",
-        "Joumana from Ehden just bought 2 Wipe the Blur.",
-        "Rita from Bcharre just bought 1 Wipe the Blur.",
-        "Fadi from Zahle just bought 3 Wipe the Blur.",
-        "Marwan from Baalbek just bought 2 Wipe the Blur.",
-        "Ali from Saida just bought 1 Wipe the Blur.",
-        "Fatima from Tyre just bought 3 Wipe the Blur.",
-        "Natalie from Nabatieh just bought 2 Wipe the Blur.",
-        "Bilal from Marjayoun just bought 1 Wipe the Blur.",
-        "Ghina from Dbayeh just bought 3 Wipe the Blur.",
-        "Wassim from Jal el Dib just bought 2 Wipe the Blur.",
-        "Karen from Antellias just bought 1 Wipe the Blur.",
-        "Imane from Zalka just bought 3 Wipe the Blur.",
-        "Georges from Sin El Fil just bought 2 Wipe the Blur.",
-        "Hiba from Dekwaneh just bought 1 Wipe the Blur.",
-        "Mostafa from Jdeideh just bought 3 Wipe the Blur.",
-        "Lina from Baouchriyeh just bought 2 Wipe the Blur.",
-        "Antoine from Bourj Hammoud just bought 1 Wipe the Blur.",
-        "Mohamad from Hazmieh just bought 3 Wipe the Blur.",
-        "Abed from Furn El Chebbak just bought 2 Wipe the Blur.",
-        "Nour from Ain El Remmaneh just bought 1 Wipe the Blur.",
-        "Amira from Ashrafieh just bought 3 Wipe the Blur.",
-        "Lea from Hamra just bought 2 Wipe the Blur.",
-        "Viviane from Verdun just bought 1 Wipe the Blur.",
-        "Rania from Jounieh just bought 3 Wipe the Blur.",
-        "Tamara from Kaslik just bought 2 Wipe the Blur.",
-        "Elie from Zouk Mosbeh just bought 1 Wipe the Blur.",
-        "Karim from Zouk Mikael just bought 3 Wipe the Blur.",
-        "Walid from Adonis just bought 2 Wipe the Blur.",
-        "Cynthia from Ghazir just bought 1 Wipe the Blur.",
-        "Maya from Jeita just bought 3 Wipe the Blur.",
-        "Yara from Jbeil just bought 2 Wipe the Blur.",
-        "Tarek from Amchit just bought 1 Wipe the Blur.",
-        "Rim from Hrajel just bought 3 Wipe the Blur.",
-        "Rabih from Feitroun just bought 2 Wipe the Blur.",
-        "Farah from Faraya just bought 1 Wipe the Blur.",
-        "Rafic from Baskinta just bought 3 Wipe the Blur.",
-        "Adel from Dhour Choueir just bought 2 Wipe the Blur.",
-        "Anis from Broummana just bought 1 Wipe the Blur.",
-        "Sara from Deir El Qamar just bought 3 Wipe the Blur.",
-        "Gaby from Batroun just bought 2 Wipe the Blur.",
-        "Lara from Chekka just bought 1 Wipe the Blur.",
-        "Khaled from Amioun just bought 3 Wipe the Blur.",
-        "Amine from Koura just bought 2 Wipe the Blur.",
-        "Tony from Tripoli just bought 1 Wipe the Blur.",
-        "Hind from Zgharta just bought 3 Wipe the Blur.",
-        "Rami from Ehden just bought 2 Wipe the Blur.",
-        "Ahmad from Bcharre just bought 1 Wipe the Blur.",
-        "Jana from Zahle just bought 3 Wipe the Blur.",
-        "Nicolas from Baalbek just bought 2 Wipe the Blur.",
-        "Elissa from Saida just bought 1 Wipe the Blur.",
-        "Ziad from Tyre just bought 3 Wipe the Blur.",
-        "Malek from Nabatieh just bought 2 Wipe the Blur.",
-        "Aline from Marjayoun just bought 1 Wipe the Blur.",
-        "Nader from Dbayeh just bought 3 Wipe the Blur.",
-        "Zahra from Jal el Dib just bought 2 Wipe the Blur.",
-        "Samar from Antellias just bought 1 Wipe the Blur.",
-        "Mira from Zalka just bought 3 Wipe the Blur."
+    const botNotifications = [
+        "🤖 Bot tracked new user activity",
+        "📊 Leaderboard updated with latest scores",
+        "💬 Message tracking in progress",
+        "🎉 New sticker activity detected",
+        "📈 Activity statistics refreshed",
+        "🔄 Bot status: All systems operational"
     ];
 
-    // Keep track of used notifications
-    let usedNotifications = [...notifications];
+    let notificationIndex = 0;
 
-    function showNotification() {
+    function showBotNotification() {
+        if (!notificationContainer) return;
+        
         const notification = document.createElement('div');
         notification.className = 'notification';
         
-        // If all notifications have been used, reset the array
-        if (usedNotifications.length === 0) {
-            usedNotifications = [...notifications];
-        }
-        
-        // Get random notification from unused notifications
-        const randomIndex = Math.floor(Math.random() * usedNotifications.length);
-        const message = usedNotifications[randomIndex];
-        
-        // Remove the used notification from the array
-        usedNotifications.splice(randomIndex, 1);
+        const message = botNotifications[notificationIndex];
+        notificationIndex = (notificationIndex + 1) % botNotifications.length;
         
         notification.innerHTML = `
-            <i class="fas fa-shopping-cart"></i>
+            <i class="fas fa-robot"></i>
             <span class="notification-text">${message}</span>
         `;
         
@@ -417,18 +271,18 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => {
                 notification.remove();
             }, 500);
-        }, 5000);
+        }, 4000);
     }
 
-    // Show first notification after 2 seconds
-    setTimeout(showNotification, 2000);
+    // Show first notification after 5 seconds
+    setTimeout(showBotNotification, 5000);
 
-    // Show subsequent notifications every 30 seconds
-    setInterval(showNotification, 30000);
+    // Show subsequent notifications every 45 seconds
+    setInterval(showBotNotification, 45000);
 });
 
 // Initialize tooltips
 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
 var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
     return new bootstrap.Tooltip(tooltipTriggerEl)
-}); 
+});

@@ -2,18 +2,18 @@
   "name": "telegram-bot-wipe-the-blur",
   "version": "1.0.0",
   "description": "Telegram Activity Tracker Bot for WipeTheBlur.com",
-  "main": "bot-render.js",
+  "main": "api/telegram-webhook.js",
   "scripts": {
-    "start": "node bot-render.js",
-    "dev": "nodemon bot-render.js",
-    "build": "echo 'No build required'"
+    "start": "node bot.js",
+    "dev": "nodemon bot.js",
+    "vercel-build": "echo 'Building for Vercel...'"
   },
   "keywords": [
     "telegram",
     "bot",
     "activity-tracker",
     "leaderboard",
-    "render"
+    "vercel"
   ],
   "dependencies": {
     "express": "^4.19.2",
