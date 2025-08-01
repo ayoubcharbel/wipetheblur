@@ -4,8 +4,8 @@ const fs = require('fs').promises;
 const path = require('path');
 
 // Bot configuration
-const BOT_TOKEN = '8278016198:AAE5lKbas5dM8qMPM3M_o6X_h6g3W76sTzU';
-const PORT = process.env.PORT || 3000;
+const BOT_TOKEN = process.env.BOT_TOKEN || '8278016198:AAE5lKbas5dM8qMPM3M_o6X_h6g3W76sTzU';
+const PORT = process.env.PORT || 10000;
 
 // Initialize bot and express app
 const bot = new TelegramBot(BOT_TOKEN, { polling: true });

@@ -1,0 +1,15 @@
+# Environment Variables Template
+# Copy these values to your deployment platform's environment variables section
+
+# Telegram Bot Configuration
+BOT_TOKEN=8278016198:AAE5lKbas5dM8qMPM3M_o6X_h6g3W76sTzU
+
+# Server Configuration  
+PORT=10000
+NODE_ENV=production
+
+# Optional: Database Configuration (for future upgrades)
+# DATABASE_URL=your_database_url_here
+
+# Optional: Additional Settings
+# ADMIN_USER_ID=your_telegram_user_id
