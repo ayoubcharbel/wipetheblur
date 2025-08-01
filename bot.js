@@ -388,8 +388,21 @@ app.get('/setup-webhook', async (req, res) => {
         await bot.deleteWebHook();
         await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
         
-        // Set new webhook with Vercel URL (most reliable)
-        const webhookUrl = `https://wipetheblur-q6cbfxm4f-charbel-ayoubs-projects.vercel.app${WEBHOOK_PATH}`;
+        // Determine the correct webhook URL based on environment
+        let webhookUrl;
+        if (process.env.RENDER) {
+            // Use Render URL
+            webhookUrl = `https://legendary-chainsaw.onrender.com${WEBHOOK_PATH}`;
+        } else if (process.env.VERCEL) {
+            // Use Vercel URL (fallback)
+            webhookUrl = `https://wipetheblur-q6cbfxm4f-charbel-ayoubs-projects.vercel.app${WEBHOOK_PATH}`;
+        } else {
+            // Auto-detect from request headers
+            const host = req.headers.host;
+            const protocol = req.headers['x-forwarded-proto'] || 'https';
+            webhookUrl = `${protocol}://${host}${WEBHOOK_PATH}`;
+        }
+        
         console.log('🔧 Setting webhook to:', webhookUrl);
         
         const result = await bot.setWebHook(webhookUrl, {
