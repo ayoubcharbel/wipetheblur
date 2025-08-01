@@ -693,6 +693,7 @@ async function startBot() {
         console.log(`📋 Webhook endpoint: ${WEBHOOK_PATH}`);
         console.log(`🔧 Use /setup-webhook to configure Telegram webhook`);
         console.log(`🧪 Use /test-bot/{chatId} to test bot sending`);
+        console.log(`💪 Bot deployment active - ${new Date().toISOString()}`);
         
         // Log bot token for debugging
         console.log(`🔑 Bot token: ${BOT_TOKEN.substring(0, 10)}...`);
