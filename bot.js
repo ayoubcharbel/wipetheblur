@@ -217,20 +217,35 @@ I track user activity in this chat and maintain a leaderboard based on messages 
 Your activity is now being tracked! 🎯
             `;
             
-            bot.sendMessage(chatId, welcomeMessage, { parse_mode: 'Markdown' });
+            try {
+                await bot.sendMessage(chatId, welcomeMessage, { parse_mode: 'Markdown' });
+                console.log('✅ Start message sent successfully');
+            } catch (error) {
+                console.error('❌ Error sending start message:', error);
+            }
             return;
         }
         
         if (msg.text === '/leaderboard') {
             const leaderboard = generateLeaderboard(chatId);
-            bot.sendMessage(chatId, leaderboard, { parse_mode: 'Markdown' });
+            try {
+                await bot.sendMessage(chatId, leaderboard, { parse_mode: 'Markdown' });
+                console.log('✅ Leaderboard message sent successfully');
+            } catch (error) {
+                console.error('❌ Error sending leaderboard message:', error);
+            }
             return;
         }
         
         if (msg.text === '/mystats') {
             const user = userData[userId];
             if (!user) {
-                bot.sendMessage(chatId, 'You haven\'t sent any messages or stickers yet!');
+                try {
+                    await bot.sendMessage(chatId, 'You haven\'t sent any messages or stickers yet!');
+                    console.log('✅ No stats message sent successfully');
+                } catch (error) {
+                    console.error('❌ Error sending no stats message:', error);
+                }
                 return;
             }
             
@@ -246,7 +261,12 @@ ${user.username ? `🔗 Username: @${user.username}\n` : ''}📝 Messages sent: 
 Keep chatting to improve your rank! 🚀
             `;
             
-            bot.sendMessage(chatId, statsMessage, { parse_mode: 'Markdown' });
+            try {
+                await bot.sendMessage(chatId, statsMessage, { parse_mode: 'Markdown' });
+                console.log('✅ Stats message sent successfully');
+            } catch (error) {
+                console.error('❌ Error sending stats message:', error);
+            }
             return;
         }
         
@@ -272,7 +292,12 @@ I track every message and sticker you send in this chat and award points for act
 Happy chatting! 💬
             `;
             
-            bot.sendMessage(chatId, helpMessage, { parse_mode: 'Markdown' });
+            try {
+                await bot.sendMessage(chatId, helpMessage, { parse_mode: 'Markdown' });
+                console.log('✅ Help message sent successfully');
+            } catch (error) {
+                console.error('❌ Error sending help message:', error);
+            }
             return;
         }
     } else if (msg.sticker) {
