@@ -7,13 +7,21 @@ const path = require('path');
 const BOT_TOKEN = process.env.BOT_TOKEN || '8278016198:AAE5lKbas5dM8qMPM3M_o6X_h6g3W76sTzU';
 const PORT = process.env.PORT || 10000;
 
-// Initialize bot and express app
-const bot = new TelegramBot(BOT_TOKEN, { polling: true });
+// Initialize bot and express app  
+// Use webhook mode for serverless compatibility (Vercel)
+const bot = new TelegramBot(BOT_TOKEN, { polling: false });
 const app = express();
 
 // Serve static files (your existing website)
 app.use(express.static(path.join(__dirname, '/')));
 app.use(express.json());
+
+// Webhook endpoint for Telegram
+const WEBHOOK_PATH = `/bot${BOT_TOKEN}`;
+app.post(WEBHOOK_PATH, (req, res) => {
+    bot.processUpdate(req.body);
+    res.sendStatus(200);
+});
 
 // Data file path
 const DATA_FILE = path.join(__dirname, 'userData.json');
@@ -247,6 +255,24 @@ app.get('/bot-stats', (req, res) => {
     });
 });
 
+// Webhook status endpoint
+app.get('/webhook-status', async (req, res) => {
+    try {
+        const webhookInfo = await bot.getWebHookInfo();
+        res.json({
+            webhook: webhookInfo,
+            status: 'Webhook configured',
+            timestamp: new Date().toISOString()
+        });
+    } catch (error) {
+        res.json({
+            error: error.message,
+            status: 'Webhook error',
+            timestamp: new Date().toISOString()
+        });
+    }
+});
+
 // Bot admin page
 app.get('/bot-admin', (req, res) => {
     const users = Object.values(userData);
@@ -416,9 +442,20 @@ app.get('/bot-admin', (req, res) => {
 async function startBot() {
     await loadUserData();
     
-    app.listen(PORT, () => {
+    app.listen(PORT, async () => {
         console.log(`🚀 Server running on port ${PORT}`);
         console.log(`🤖 Bot is active and monitoring chats...`);
+        
+        // Set up webhook for production (Vercel)
+        if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
+            const webhookUrl = `https://www.wipetheblur.com${WEBHOOK_PATH}`;
+            try {
+                await bot.setWebHook(webhookUrl);
+                console.log(`✅ Webhook set to: ${webhookUrl}`);
+            } catch (error) {
+                console.error('❌ Failed to set webhook:', error.message);
+            }
+        }
     });
 }
 
