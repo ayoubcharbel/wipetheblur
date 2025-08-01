@@ -332,6 +332,36 @@ app.get('/webhook-status', async (req, res) => {
     }
 });
 
+// Manual webhook setup endpoint
+app.get('/setup-webhook', async (req, res) => {
+    try {
+        const webhookUrl = `https://www.wipetheblur.com${WEBHOOK_PATH}`;
+        console.log('🔧 Setting up webhook manually:', webhookUrl);
+        
+        const result = await bot.setWebHook(webhookUrl);
+        console.log('✅ Webhook setup result:', result);
+        
+        // Get updated webhook info
+        const webhookInfo = await bot.getWebHookInfo();
+        
+        res.json({
+            success: true,
+            message: 'Webhook set up successfully!',
+            webhookUrl,
+            result,
+            webhookInfo,
+            timestamp: new Date().toISOString()
+        });
+    } catch (error) {
+        console.error('❌ Failed to set webhook:', error);
+        res.json({
+            success: false,
+            error: error.message,
+            timestamp: new Date().toISOString()
+        });
+    }
+});
+
 // Bot admin page
 app.get('/bot-admin', (req, res) => {
     const users = Object.values(userData);
