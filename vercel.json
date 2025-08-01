@@ -8,6 +8,10 @@
   ],
   "routes": [
     {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "bot.js"
     }
@@ -15,11 +19,23 @@
   "functions": {
     "bot.js": {
       "maxDuration": 30
+    },
+    "api/telegram-webhook.js": {
+      "maxDuration": 30
+    },
+    "api/setup-webhook.js": {
+      "maxDuration": 30
+    },
+    "api/webhook-status.js": {
+      "maxDuration": 30
+    },
+    "api/bot-status.js": {
+      "maxDuration": 30
     }
   },
   "headers": [
     {
-      "source": "/telegram-webhook",
+      "source": "/api/telegram-webhook",
       "headers": [
         {
           "key": "Cache-Control",
