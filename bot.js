@@ -17,9 +17,25 @@ app.use(express.static(path.join(__dirname, '/')));
 app.use(express.json());
 
 // Webhook endpoint for Telegram
-const WEBHOOK_PATH = `/bot${BOT_TOKEN}`;
+const WEBHOOK_PATH = `/telegram-webhook`;
+
+// Test endpoint to verify webhook accessibility
+app.get(WEBHOOK_PATH, (req, res) => {
+    res.json({
+        message: 'Telegram webhook endpoint is accessible',
+        timestamp: new Date().toISOString(),
+        path: WEBHOOK_PATH
+    });
+});
+
 app.post(WEBHOOK_PATH, (req, res) => {
-    bot.processUpdate(req.body);
+    console.log('📨 Webhook received update:', JSON.stringify(req.body, null, 2));
+    try {
+        bot.processUpdate(req.body);
+        console.log('✅ Update processed successfully');
+    } catch (error) {
+        console.error('❌ Error processing update:', error);
+    }
     res.sendStatus(200);
 });
 
@@ -31,23 +47,35 @@ let userData = {};
 
 // Load existing data on startup
 async function loadUserData() {
+    if (process.env.VERCEL) {
+        console.log('🔄 Running on Vercel - starting with fresh data in memory');
+        userData = {};
+        return;
+    }
+    
     try {
         const data = await fs.readFile(DATA_FILE, 'utf8');
         userData = JSON.parse(data);
-        console.log('User data loaded successfully');
+        console.log('📂 User data loaded successfully from file');
     } catch (error) {
-        console.log('No existing data file found, starting fresh');
+        console.log('📂 No existing data file found, starting fresh');
         userData = {};
     }
 }
 
-// Save data to file
+// Save data to file (Note: On Vercel, file storage is ephemeral)
 async function saveUserData() {
+    if (process.env.VERCEL) {
+        console.log('⚠️  Running on Vercel - data will be stored in memory only (resets on deployment)');
+        console.log('💾 Current user data:', Object.keys(userData).length, 'users');
+        return; // Don't try to write files on Vercel
+    }
+    
     try {
         await fs.writeFile(DATA_FILE, JSON.stringify(userData, null, 2));
-        console.log('User data saved successfully');
+        console.log('💾 User data saved to file successfully');
     } catch (error) {
-        console.error('Error saving user data:', error);
+        console.error('❌ Error saving user data:', error);
     }
 }
 
@@ -77,17 +105,28 @@ function getUser(userId, userInfo) {
 
 // Update user score
 async function updateUserScore(userId, userInfo, isSticker = false) {
+    console.log('📊 Updating score for user:', {
+        userId,
+        userName: userInfo.first_name,
+        isSticker,
+        timestamp: new Date().toISOString()
+    });
+    
     const user = getUser(userId, userInfo);
     
     if (isSticker) {
         user.stickers++;
+        console.log('🎭 Sticker count increased to:', user.stickers);
     } else {
         user.messages++;
+        console.log('📝 Message count increased to:', user.messages);
     }
     
     user.totalScore = user.messages + user.stickers;
+    console.log('🏅 Total score updated to:', user.totalScore);
     
     await saveUserData();
+    console.log('💾 User data saved successfully');
 }
 
 // Generate leaderboard
@@ -122,6 +161,15 @@ function generateLeaderboard(chatId) {
 
 // Bot event handlers
 bot.on('message', async (msg) => {
+    console.log('🔔 Bot received message:', {
+        chatId: msg.chat.id,
+        userId: msg.from?.id,
+        userName: msg.from?.first_name,
+        text: msg.text,
+        sticker: !!msg.sticker,
+        timestamp: new Date().toISOString()
+    });
+    
     const chatId = msg.chat.id;
     const userId = msg.from.id;
     const userInfo = msg.from;
@@ -232,11 +280,22 @@ app.get('/', (req, res) => {
 
 // Bot status API endpoint
 app.get('/bot-status', (req, res) => {
+    const users = Object.values(userData);
+    const totalMessages = users.reduce((sum, user) => sum + user.messages, 0);
+    const totalStickers = users.reduce((sum, user) => sum + user.stickers, 0);
+    
     res.json({
         status: 'Bot is running!',
         timestamp: new Date().toISOString(),
         totalUsers: Object.keys(userData).length,
-        botActive: true
+        totalMessages,
+        totalStickers,
+        totalActivity: totalMessages + totalStickers,
+        botActive: true,
+        webhookPath: WEBHOOK_PATH,
+        dataFile: DATA_FILE,
+        environment: process.env.NODE_ENV || 'development',
+        isVercel: !!process.env.VERCEL
     });
 });
 
