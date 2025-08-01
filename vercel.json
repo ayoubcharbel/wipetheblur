@@ -1,25 +1,6 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "bot.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "bot.js"
-    }
-  ],
   "functions": {
-    "bot.js": {
-      "maxDuration": 30
-    },
     "api/telegram-webhook.js": {
       "maxDuration": 30
     },
@@ -33,15 +14,14 @@
       "maxDuration": 30
     }
   },
-  "headers": [
+  "rewrites": [
     {
-      "source": "/api/telegram-webhook",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-cache, no-store, must-revalidate"
-        }
-      ]
+      "source": "/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/$1"
     }
   ]
 }
