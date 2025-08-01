@@ -71,6 +71,22 @@ app.post(WEBHOOK_PATH, async (req, res) => {
     }
 });
 
+// Alternative webhook endpoint (backup)
+app.post('/webhook', async (req, res) => {
+    console.log('📨 Backup webhook received update:', JSON.stringify(req.body, null, 2));
+    
+    try {
+        const update = req.body;
+        if (update && update.message) {
+            await handleMessage(update.message);
+        }
+        res.sendStatus(200);
+    } catch (error) {
+        console.error('❌ Backup webhook error:', error);
+        res.sendStatus(200);
+    }
+});
+
 // Data file path
 const DATA_FILE = path.join(__dirname, 'userData.json');
 
