@@ -335,11 +335,24 @@ app.get('/webhook-status', async (req, res) => {
 // Manual webhook setup endpoint
 app.get('/setup-webhook', async (req, res) => {
     try {
-        const webhookUrl = `https://www.wipetheblur.com${WEBHOOK_PATH}`;
-        console.log('🔧 Setting up webhook manually:', webhookUrl);
+        const vercelUrl = `https://wipetheblur-q6cbfxm4f-charbel-ayoubs-projects.vercel.app${WEBHOOK_PATH}`;
+        const customUrl = `https://www.wipetheblur.com${WEBHOOK_PATH}`;
         
-        const result = await bot.setWebHook(webhookUrl);
-        console.log('✅ Webhook setup result:', result);
+        // Try custom domain first, fallback to Vercel URL
+        let webhookUrl = customUrl;
+        let result;
+        
+        console.log('🔧 Trying to set webhook with custom domain:', customUrl);
+        
+        try {
+            result = await bot.setWebHook(customUrl);
+            console.log('✅ Custom domain webhook successful');
+        } catch (customError) {
+            console.log('❌ Custom domain failed, trying Vercel URL:', vercelUrl);
+            webhookUrl = vercelUrl;
+            result = await bot.setWebHook(vercelUrl);
+            console.log('✅ Vercel URL webhook successful');
+        }
         
         // Get updated webhook info
         const webhookInfo = await bot.getWebHookInfo();
@@ -353,7 +366,38 @@ app.get('/setup-webhook', async (req, res) => {
             timestamp: new Date().toISOString()
         });
     } catch (error) {
-        console.error('❌ Failed to set webhook:', error);
+        console.error('❌ All webhook attempts failed:', error);
+        res.json({
+            success: false,
+            error: error.message,
+            webhookUrl: 'Failed to set any webhook',
+            timestamp: new Date().toISOString()
+        });
+    }
+});
+
+// Webhook setup with Vercel URL only
+app.get('/setup-webhook-vercel', async (req, res) => {
+    try {
+        const webhookUrl = `https://wipetheblur-q6cbfxm4f-charbel-ayoubs-projects.vercel.app${WEBHOOK_PATH}`;
+        console.log('🔧 Setting up webhook with Vercel URL:', webhookUrl);
+        
+        const result = await bot.setWebHook(webhookUrl);
+        console.log('✅ Vercel webhook setup result:', result);
+        
+        // Get updated webhook info
+        const webhookInfo = await bot.getWebHookInfo();
+        
+        res.json({
+            success: true,
+            message: 'Webhook set up with Vercel URL successfully!',
+            webhookUrl,
+            result,
+            webhookInfo,
+            timestamp: new Date().toISOString()
+        });
+    } catch (error) {
+        console.error('❌ Failed to set Vercel webhook:', error);
         res.json({
             success: false,
             error: error.message,
