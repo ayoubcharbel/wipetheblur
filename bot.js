@@ -342,6 +342,26 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// Simple test POST endpoint
+app.post('/test-post', (req, res) => {
+    console.log('📥 Test POST endpoint hit');
+    res.json({ 
+        message: 'POST endpoint working!', 
+        body: req.body,
+        timestamp: new Date().toISOString()
+    });
+});
+
+// Debug endpoint to check middleware
+app.get('/debug', (req, res) => {
+    res.json({
+        message: 'Debug info',
+        middleware: 'express.json() loaded',
+        routes: ['/telegram-webhook', '/webhook', '/test-post'],
+        timestamp: new Date().toISOString()
+    });
+});
+
 // Bot status API endpoint
 app.get('/bot-status', (req, res) => {
     const users = Object.values(userData);
