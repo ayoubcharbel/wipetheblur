@@ -376,6 +376,33 @@ app.get('/setup-webhook', async (req, res) => {
     }
 });
 
+// Clear webhook endpoint
+app.get('/clear-webhook', async (req, res) => {
+    try {
+        console.log('🔧 Clearing webhook...');
+        const result = await bot.deleteWebHook();
+        console.log('✅ Webhook cleared:', result);
+        
+        // Get updated webhook info
+        const webhookInfo = await bot.getWebHookInfo();
+        
+        res.json({
+            success: true,
+            message: 'Webhook cleared successfully!',
+            result,
+            webhookInfo,
+            timestamp: new Date().toISOString()
+        });
+    } catch (error) {
+        console.error('❌ Failed to clear webhook:', error);
+        res.json({
+            success: false,
+            error: error.message,
+            timestamp: new Date().toISOString()
+        });
+    }
+});
+
 // Webhook setup with Vercel URL only
 app.get('/setup-webhook-vercel', async (req, res) => {
     try {
