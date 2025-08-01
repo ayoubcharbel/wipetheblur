@@ -11,5 +11,21 @@
       "src": "/(.*)",
       "dest": "bot.js"
     }
+  ],
+  "functions": {
+    "bot.js": {
+      "maxDuration": 30
+    }
+  },
+  "headers": [
+    {
+      "source": "/telegram-webhook",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    }
   ]
 }
