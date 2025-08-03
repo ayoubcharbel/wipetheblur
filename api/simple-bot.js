@@ -70,42 +70,110 @@ module.exports = async function handler(req, res) {
                 data.users[userId] = {
                     id: userId,
                     firstName: firstName,
+                    username: msg.from.username || '',
                     messages: 0,
                     stickers: 0,
                     total: 0
                 };
+            } else {
+                // Update user info
+                data.users[userId].firstName = firstName;
+                data.users[userId].username = msg.from.username || '';
             }
             
             // Handle commands
             if (msg.text && msg.text.startsWith('/')) {
                 if (msg.text === '/start') {
-                    await bot.sendMessage(chatId, '🤖 Simple Bot is working!\n\nCommands:\n/status - View stats\n/top - View leaderboard');
+                    // Set up bot commands menu
+                    await bot.setMyCommands([
+                        { command: 'start', description: 'Start the bot and see welcome message' },
+                        { command: 'stats', description: 'View activity statistics' },
+                        { command: 'leaderboard', description: 'View user rankings' },
+                        { command: 'mystats', description: 'View your personal statistics' },
+                        { command: 'help', description: 'Show help information' }
+                    ]);
+                    
+                    await bot.sendMessage(chatId, '🤖 Bot is working!\n\nAvailable commands:\n/stats - View statistics\n/leaderboard - View leaderboard\n/mystats - Your personal stats\n/help - Help information\n\nTip: Type "/" to see all commands!');
                     return res.json({ status: 'ok' });
                 }
                 
-                if (msg.text === '/status') {
+                if (msg.text === '/stats') {
                     const users = Object.values(data.users);
-                    await bot.sendMessage(chatId, `📊 Bot Stats:\n👥 Users: ${users.length}\n💬 Messages: ${data.totalMessages}\n🎭 Stickers: ${data.totalStickers}\n📈 Total: ${data.totalMessages + data.totalStickers}`);
+                    await bot.sendMessage(chatId, `📊 Statistics:\n👥 Users: ${users.length}\n💬 Messages: ${data.totalMessages}\n🎭 Stickers: ${data.totalStickers}\n📈 Total: ${data.totalMessages + data.totalStickers}`);
                     return res.json({ status: 'ok' });
                 }
                 
-                if (msg.text === '/top') {
+                if (msg.text === '/leaderboard') {
                     const users = Object.values(data.users);
-                    let leaderboard = '🏆 Top Users:\n\n';
+                    let leaderboard = '🏆 *Activity Leaderboard* 🏆\n\n';
                     
                     if (users.length === 0) {
-                        leaderboard += 'No users yet! Send a message to get started!';
+                        leaderboard = 'No activity data available yet! Start chatting to build the leaderboard! 🚀';
                     } else {
                         users.sort((a, b) => b.total - a.total)
-                             .slice(0, 5)
+                             .slice(0, 10)
                              .forEach((user, index) => {
                                  const rank = index + 1;
                                  const trophy = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}.`;
-                                 leaderboard += `${trophy} ${user.firstName}: ${user.total} points\n`;
+                                 const name = user.firstName;
+                                 const username = user.username ? `(@${user.username})` : '';
+                                 
+                                 leaderboard += `${trophy} *${name}* ${username}\n`;
+                                 leaderboard += `   📝 Messages: ${user.messages}\n`;
+                                 leaderboard += `   🎭 Stickers: ${user.stickers}\n`;
+                                 leaderboard += `   🏅 Total Score: ${user.total}\n\n`;
                              });
+                        
+                        leaderboard += `\n📊 Total participants: ${users.length}`;
                     }
                     
-                    await bot.sendMessage(chatId, leaderboard);
+                    await bot.sendMessage(chatId, leaderboard, { parse_mode: 'Markdown' });
+                    return res.json({ status: 'ok' });
+                }
+                
+                if (msg.text === '/mystats') {
+                    const user = data.users[userId];
+                    if (!user) {
+                        await bot.sendMessage(chatId, 'You haven\'t sent any messages or stickers yet! Start chatting to appear in the stats.');
+                        return res.json({ status: 'ok' });
+                    }
+                    
+                    const name = user.firstName;
+                    const statsMessage = `📊 *Your Statistics* 📊
+
+👤 Name: ${name}
+${user.username ? `🔗 Username: @${user.username}\n` : ''}📝 Messages sent: ${user.messages}
+🎭 Stickers sent: ${user.stickers}
+🏅 Total score: ${user.total}
+
+Keep chatting to improve your rank! 🚀`;
+                    
+                    await bot.sendMessage(chatId, statsMessage, { parse_mode: 'Markdown' });
+                    return res.json({ status: 'ok' });
+                }
+                
+                if (msg.text === '/help') {
+                    const helpMessage = `🤖 *Activity Tracker Bot Help*
+
+*What I do:*
+I track every message and sticker you send in this chat and award points for activity.
+
+*Scoring system:*
+📝 Message = 1 point
+🎭 Sticker = 1 point
+
+*Available commands:*
+/start - Welcome message and bot info
+/leaderboard - View current rankings
+/mystats - View your personal statistics
+/stats - View total statistics
+/help - Show this help message
+
+*Note:* Your scores accumulate over time and never reset!
+
+Happy chatting! 💬`;
+                    
+                    await bot.sendMessage(chatId, helpMessage, { parse_mode: 'Markdown' });
                     return res.json({ status: 'ok' });
                 }
             }
