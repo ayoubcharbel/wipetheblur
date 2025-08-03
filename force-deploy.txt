@@ -1,1 +1,4 @@
-Force deployment: Sun Aug  3 20:06:58 EEST 2025
+Force deploy trigger - fixing API endpoints
+Timestamp: 2024-12-27 15:26:00
+Reason: API endpoints returning redirects/404 errors
+Changes: Fixed /leaderboard command in api/simple-bot.js
