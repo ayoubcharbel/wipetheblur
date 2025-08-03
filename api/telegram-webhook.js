@@ -54,9 +54,17 @@ async function handleUpdate(update) {
             }
             
             if (msg.text === '/leaderboard') {
-                const leaderboard = sharedData.generateLeaderboard();
-                await bot.sendMessage(chatId, leaderboard, { parse_mode: 'Markdown' });
-                console.log('✅ Leaderboard message sent');
+                try {
+                    // Load fresh data before generating leaderboard
+                    sharedData.loadUserData();
+                    const leaderboard = sharedData.generateLeaderboard();
+                    console.log('📊 Generated leaderboard:', leaderboard.substring(0, 100) + '...');
+                    await bot.sendMessage(chatId, leaderboard, { parse_mode: 'Markdown' });
+                    console.log('✅ Leaderboard message sent');
+                } catch (error) {
+                    console.error('❌ Error with leaderboard:', error);
+                    await bot.sendMessage(chatId, '❌ Sorry, there was an error generating the leaderboard. Please try again.');
+                }
                 return;
             }
         }
