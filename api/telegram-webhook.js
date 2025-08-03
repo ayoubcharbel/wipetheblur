@@ -1,5 +1,85 @@
 const TelegramBot = require('node-telegram-bot-api');
-const { updateUserScore, generateLeaderboard, getSharedUserData } = require('./_shared-data.js');
+
+// Function to update activity via API call
+async function updateActivityViaAPI(userId, userInfo, isSticker = false) {
+    try {
+        const response = await fetch('https://www.wipetheblur.com/api/data-store', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, userInfo, isSticker })
+        });
+        
+        if (!response.ok) {
+            console.error('❌ Failed to update activity via API:', response.status);
+            return null;
+        }
+        
+        const result = await response.json();
+        console.log('✅ Activity updated via API:', result);
+        return result;
+    } catch (error) {
+        console.error('❌ Error updating activity via API:', error);
+        return null;
+    }
+}
+
+// Function to get leaderboard via API
+async function getLeaderboardViaAPI() {
+    try {
+        const response = await fetch('https://www.wipetheblur.com/api/data-store');
+        if (!response.ok) {
+            console.error('❌ Failed to get data via API:', response.status);
+            return "❌ Unable to load leaderboard data";
+        }
+        
+        const data = await response.json();
+        const users = Object.values(data.users);
+        
+        if (users.length === 0) {
+            return "📊 *Leaderboard* 📊\n\nNo activity data available yet!\nStart sending messages and stickers to see rankings! 🚀";
+        }
+        
+        // Sort users by total score
+        users.sort((a, b) => b.totalScore - a.totalScore);
+        
+        let leaderboard = "📊 *Leaderboard* 📊\n\n";
+        
+        users.slice(0, 10).forEach((user, index) => {
+            const rank = index + 1;
+            const trophy = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}.`;
+            const name = user.firstName + (user.lastName ? ` ${user.lastName}` : '');
+            const username = user.username ? `(@${user.username})` : '';
+            
+            leaderboard += `${trophy} *${name}* ${username}\n`;
+            leaderboard += `   📝 Messages: ${user.messages}\n`;
+            leaderboard += `   🎭 Stickers: ${user.stickers}\n`;
+            leaderboard += `   🏅 Total Score: ${user.totalScore}\n\n`;
+        });
+        
+        leaderboard += `\n📊 Total participants: ${users.length}`;
+        return leaderboard;
+    } catch (error) {
+        console.error('❌ Error getting leaderboard via API:', error);
+        return "❌ Unable to load leaderboard data";
+    }
+}
+
+// Function to get user stats via API
+async function getUserStatsViaAPI(userId) {
+    try {
+        const response = await fetch('https://www.wipetheblur.com/api/data-store');
+        if (!response.ok) {
+            console.error('❌ Failed to get data via API:', response.status);
+            return null;
+        }
+        
+        const data = await response.json();
+        return data.users[userId] || null;
+    } catch (error) {
+        console.error('❌ Error getting user stats via API:', error);
+        return null;
+    }
+}
 
 // Bot configuration
 const BOT_TOKEN = process.env.BOT_TOKEN;
@@ -137,11 +217,11 @@ Happy chatting! 💬
         }
     } else if (msg.sticker) {
         // Handle stickers
-        updateUserScore(userId, userInfo, true);
+        await updateActivityViaAPI(userId, userInfo, true);
         console.log(`🎭 Sticker from ${userInfo.first_name}: +1 point`);
     } else if (msg.text) {
         // Handle regular messages (excluding commands)
-        updateUserScore(userId, userInfo, false);
+        await updateActivityViaAPI(userId, userInfo, false);
         console.log(`📝 Message from ${userInfo.first_name}: +1 point`);
     }
 }
