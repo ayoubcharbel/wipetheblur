@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function fetchBotStatus() {
         try {
             console.log('Fetching bot status...');
-            const response = await fetch('/bot-status');
+            const response = await fetch('/api/bot-status');
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -285,4 +285,4 @@ document.addEventListener('DOMContentLoaded', function() {
 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
 var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
     return new bootstrap.Tooltip(tooltipTriggerEl)
-});
+}); 
