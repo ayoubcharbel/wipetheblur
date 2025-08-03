@@ -17,7 +17,16 @@ module.exports = async function handler(req, res) {
     }
     
     // Get real data from webhook storage via shared variable
-    const { getUserData } = require('./telegram-webhook.js');
+    // Import getUserData function from webhook
+    let getUserData;
+    try {
+        const webhookModule = require('./telegram-webhook.js');
+        getUserData = webhookModule.getUserData;
+        console.log('✅ Successfully imported getUserData from webhook');
+    } catch (error) {
+        console.log('⚠️ Could not import getUserData:', error.message);
+        getUserData = () => ({}); // Fallback
+    }
     let stats = { totalUsers: 0, totalMessages: 0, totalStickers: 0, totalActivity: 0 };
     
     try {
