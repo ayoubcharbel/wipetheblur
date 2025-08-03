@@ -1,9 +1,60 @@
 // Shared data management for all API endpoints
 // This ensures all endpoints share the same userData
 
+const fs = require('fs');
+const path = require('path');
+
 let userData = {};
+let isDataLoaded = false;
+
+// File path for persistent storage
+const dataFilePath = process.env.VERCEL ? '/tmp/userData.json' : path.join(process.cwd(), 'userData.json');
+
+// Load user data from file (with error handling)
+function loadUserData() {
+    if (isDataLoaded) return; // Prevent multiple loads
+    
+    try {
+        console.log('📁 Loading user data from:', dataFilePath);
+        if (fs.existsSync(dataFilePath)) {
+            const fileData = fs.readFileSync(dataFilePath, 'utf8');
+            if (fileData.trim()) {
+                userData = JSON.parse(fileData);
+                console.log('✅ User data loaded successfully:', Object.keys(userData).length, 'users');
+            }
+        } else {
+            console.log('📝 No existing data file found, starting fresh');
+        }
+    } catch (error) {
+        console.error('❌ Error loading user data:', error.message);
+        userData = {}; // Start fresh if file is corrupted
+    }
+    isDataLoaded = true;
+}
+
+// Save user data to file (with error handling)
+function saveUserData() {
+    try {
+        console.log('💾 Saving user data to:', dataFilePath);
+        
+        // Ensure directory exists
+        const dir = path.dirname(dataFilePath);
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+        
+        fs.writeFileSync(dataFilePath, JSON.stringify(userData, null, 2));
+        console.log('✅ User data saved successfully:', Object.keys(userData).length, 'users');
+    } catch (error) {
+        console.error('❌ Error saving user data:', error.message);
+    }
+}
+
+// Auto-load data on first access
+loadUserData();
 
 function getSharedUserData() {
+    loadUserData(); // Ensure data is loaded
     return userData;
 }
 
@@ -36,6 +87,8 @@ function getUser(userId, userInfo) {
 }
 
 function updateUserScore(userId, userInfo, isSticker = false) {
+    loadUserData(); // Ensure data is loaded
+    
     console.log('📊 Updating score for user:', {
         userId,
         userName: userInfo.first_name,
@@ -58,6 +111,9 @@ function updateUserScore(userId, userInfo, isSticker = false) {
     
     // Log current total users for debugging
     console.log('👥 Total users in database:', Object.keys(userData).length);
+    
+    // Auto-save after every update
+    saveUserData();
     
     return user;
 }
@@ -94,6 +150,7 @@ function generateLeaderboard() {
 }
 
 function getStats() {
+    loadUserData(); // Ensure data is loaded
     const users = Object.values(userData);
     const totalMessages = users.reduce((sum, user) => sum + user.messages, 0);
     const totalStickers = users.reduce((sum, user) => sum + user.stickers, 0);
@@ -113,5 +170,7 @@ module.exports = {
     getUser,
     updateUserScore,
     generateLeaderboard,
-    getStats
+    getStats,
+    loadUserData,
+    saveUserData
 };
