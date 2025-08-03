@@ -36,6 +36,9 @@
     },
     "api/data-store.js": {
       "maxDuration": 30
+    },
+    "api/test-activity.js": {
+      "maxDuration": 30
     }
   },
   "routes": [
