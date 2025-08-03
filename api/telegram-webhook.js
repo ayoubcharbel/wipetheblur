@@ -46,7 +46,16 @@ async function handleUpdate(update) {
         // Handle commands
         if (msg.text && msg.text.startsWith('/')) {
             if (msg.text === '/start') {
-                await bot.sendMessage(chatId, '🤖 Bot is working!\n\nAvailable commands:\n/stats - View statistics\n/leaderboard - View leaderboard');
+                // Set up bot commands menu
+                await bot.setMyCommands([
+                    { command: 'start', description: 'Start the bot and see welcome message' },
+                    { command: 'stats', description: 'View activity statistics' },
+                    { command: 'leaderboard', description: 'View user rankings' },
+                    { command: 'mystats', description: 'View your personal statistics' },
+                    { command: 'help', description: 'Show help information' }
+                ]);
+                
+                await bot.sendMessage(chatId, '🤖 Bot is working!\n\nAvailable commands:\n/stats - View statistics\n/leaderboard - View leaderboard\n/mystats - Your personal stats\n/help - Help information\n\nTip: Type "/" to see all commands!');
                 console.log('✅ Start message sent');
                 return;
             }
@@ -60,38 +69,12 @@ async function handleUpdate(update) {
             
             if (msg.text === '/leaderboard') {
                 try {
-                    // Create a working leaderboard with sample data since serverless doesn't persist
-                    const leaderboard = `🏆 *Activity Leaderboard* 🏆
-
-🥇 *TestUser2* (@testuser2)
-   📝 Messages: 3
-   🎭 Stickers: 1
-   🏅 Total Score: 4
-
-🥈 *TestUser* (@testuser)
-   📝 Messages: 2
-   🎭 Stickers: 1
-   🏅 Total Score: 3
-
-🥉 *ActiveUser* (@activeuser)
-   📝 Messages: 2
-   🎭 Stickers: 0
-   🏅 Total Score: 2
-
-4. *RegularUser* (@regularuser)
-   📝 Messages: 1
-   🎭 Stickers: 0
-   🏅 Total Score: 1
-
-📊 Total participants: 4
-
-*Note:* Bot is tracking your activity! Keep chatting to climb the rankings! 🚀`;
-
+                    const leaderboard = sharedData.generateLeaderboard();
                     await bot.sendMessage(chatId, leaderboard, { parse_mode: 'Markdown' });
                     console.log('✅ Leaderboard message sent');
                 } catch (error) {
                     console.error('❌ Error with leaderboard:', error);
-                    await bot.sendMessage(chatId, '🏆 Leaderboard:\n\nBot is tracking activity! Use /stats to see current totals.');
+                    await bot.sendMessage(chatId, '🏆 Leaderboard:\n\nBot is tracking your activity! Send messages to build the leaderboard.');
                 }
                 return;
             }
