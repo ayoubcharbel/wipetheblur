@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node bot.js",
     "dev": "nodemon bot.js",
-    "build": "echo 'No build step needed for Vercel serverless functions'"
+    "build": "mkdir -p public && cp *.html *.css *.js public/ && cp -r images public/ 2>/dev/null || true"
   },
   "keywords": [
     "telegram",
