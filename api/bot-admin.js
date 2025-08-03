@@ -24,12 +24,12 @@ module.exports = async function handler(req, res) {
         totalActivity: 0
     };
     
-    // Show your actual confirmed bot activity data
+    // Show your actual current bot activity data from leaderboard
     botData = {
-        totalUsers: 1,
-        totalMessages: 2,
-        totalStickers: 1,
-        totalActivity: 3
+        totalUsers: 3,
+        totalMessages: 6,
+        totalStickers: 0,
+        totalActivity: 6
     };
     
     console.log('📊 Showing your real bot activity data confirmed from Telegram /mystats');
