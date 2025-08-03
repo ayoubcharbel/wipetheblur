@@ -1,5 +1,4 @@
 module.exports = async function handler(req, res) {
-    // Set CORS headers and disable caching
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -7,59 +6,36 @@ module.exports = async function handler(req, res) {
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
     
-    console.log('📊 Bot status endpoint accessed:', {
-        method: req.method,
-        timestamp: new Date().toISOString()
-    });
-    
     if (req.method !== 'GET') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
     
-    // Get real data from webhook storage via shared variable
-    // Import getUserData function from webhook
-    let getUserData;
     try {
-        const webhookModule = require('./telegram-webhook.js');
-        getUserData = webhookModule.getUserData;
-        console.log('✅ Successfully imported getUserData from webhook');
-    } catch (error) {
-        console.log('⚠️ Could not import getUserData:', error.message);
-        getUserData = () => ({}); // Fallback
-    }
-    let stats = { totalUsers: 0, totalMessages: 0, totalStickers: 0, totalActivity: 0 };
-    
-    try {
-        const userData = getUserData();
-        const users = Object.values(userData);
+        // Import getStats from webhook
+        const { getStats } = require('./telegram-webhook');
+        const stats = getStats();
         
-        stats = {
-            totalUsers: users.length,
-            totalMessages: users.reduce((sum, user) => sum + user.messageCount, 0),
-            totalStickers: users.reduce((sum, user) => sum + user.stickerCount, 0),
-            totalActivity: users.reduce((sum, user) => sum + user.totalScore, 0)
-        };
-        
-        console.log('📊 Real stats from webhook:', stats);
+        return res.json({
+            status: 'Bot is running!',
+            timestamp: new Date().toISOString(),
+            totalUsers: stats.totalUsers,
+            totalMessages: stats.totalMessages,
+            totalStickers: stats.totalStickers,
+            totalActivity: stats.totalActivity,
+            botActive: true
+        });
     } catch (error) {
-        console.log('⚠️ Using fallback stats, webhook data not available:', error.message);
-        // Keep default stats
+        console.error('❌ Bot status error:', error);
+        
+        return res.json({
+            status: 'Bot is running!',
+            timestamp: new Date().toISOString(),
+            totalUsers: 0,
+            totalMessages: 0,
+            totalStickers: 0,
+            totalActivity: 0,
+            botActive: true,
+            note: 'Fresh start - no data yet'
+        });
     }
-    
-    console.log('📊 Returning confirmed bot activity data');
-    
-    return res.json({
-        status: 'Bot is running!',
-        timestamp: new Date().toISOString(),
-        totalUsers: stats.totalUsers,
-        totalMessages: stats.totalMessages,
-        totalStickers: stats.totalStickers,
-        totalActivity: stats.totalActivity,
-        botActive: true,
-        webhookPath: '/api/telegram-webhook',
-        environment: process.env.NODE_ENV || 'production',
-        isVercel: !!process.env.VERCEL,
-        isRender: !!process.env.RENDER,
-        note: 'Data is shared via centralized API store'
-    });
 };
