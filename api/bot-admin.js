@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
     // Set CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET');
@@ -111,7 +111,7 @@ export default async function handler(req, res) {
                         <p class="card-text">
                             <strong>Total Users:</strong> ${botData.totalUsers}<br>
                             <strong>Active Today:</strong> ${botData.totalUsers > 0 ? 1 : 0}<br>
-                            <strong>Note:</strong> Data resets on cold starts
+                            <strong>Note:</strong> Data is stored persistently
                         </p>
                     </div>
                 </div>
@@ -197,7 +197,7 @@ export default async function handler(req, res) {
                             <div class="col-md-6">
                                 <p><strong>Environment:</strong> Render</p>
                                 <p><strong>Platform:</strong> Node.js</p>
-                                <p><strong>Data Storage:</strong> In-memory (resets on cold starts)</p>
+                                <p><strong>Data Storage:</strong> Persistent file storage</p>
                                 <p><strong>Webhook URL:</strong> https://www.wipetheblur.com/api/telegram-webhook</p>
                             </div>
                             <div class="col-md-6">
