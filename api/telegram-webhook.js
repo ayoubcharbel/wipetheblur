@@ -69,6 +69,8 @@ async function handleUpdate(update) {
             
             if (msg.text === '/leaderboard') {
                 try {
+                    // Always load fresh data before generating leaderboard
+                    sharedData.loadUserData();
                     const leaderboard = sharedData.generateLeaderboard();
                     await bot.sendMessage(chatId, leaderboard, { parse_mode: 'Markdown' });
                     console.log('✅ Leaderboard message sent');
@@ -80,15 +82,19 @@ async function handleUpdate(update) {
             }
             
             if (msg.text === '/mystats') {
-                const userData = sharedData.getSharedUserData();
-                const user = userData[userId];
-                if (!user) {
-                    await bot.sendMessage(chatId, 'You haven\'t sent any messages or stickers yet!');
-                    return;
-                }
-                
-                const name = user.firstName + (user.lastName ? ` ${user.lastName}` : '');
-                const statsMessage = `📊 *Your Statistics* 📊
+                try {
+                    // Load fresh data first
+                    sharedData.loadUserData();
+                    const userData = sharedData.getSharedUserData();
+                    const user = userData[userId];
+                    
+                    if (!user) {
+                        await bot.sendMessage(chatId, 'You haven\'t sent any messages or stickers yet! Start chatting to appear in the stats.');
+                        return;
+                    }
+                    
+                    const name = user.firstName + (user.lastName ? ` ${user.lastName}` : '');
+                    const statsMessage = `📊 *Your Statistics* 📊
 
 👤 Name: ${name}
 ${user.username ? `🔗 Username: @${user.username}\n` : ''}📝 Messages sent: ${user.messages}
@@ -96,9 +102,13 @@ ${user.username ? `🔗 Username: @${user.username}\n` : ''}📝 Messages sent: 
 🏅 Total score: ${user.totalScore}
 
 Keep chatting to improve your rank! 🚀`;
-                
-                await bot.sendMessage(chatId, statsMessage, { parse_mode: 'Markdown' });
-                console.log('✅ Personal stats message sent');
+                    
+                    await bot.sendMessage(chatId, statsMessage, { parse_mode: 'Markdown' });
+                    console.log('✅ Personal stats message sent');
+                } catch (error) {
+                    console.error('❌ Error with mystats:', error);
+                    await bot.sendMessage(chatId, 'Error getting your stats. Try again later.');
+                }
                 return;
             }
             
