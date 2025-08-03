@@ -33,6 +33,9 @@
     },
     "api/bot-admin.js": {
       "maxDuration": 30
+    },
+    "api/data-store.js": {
+      "maxDuration": 30
     }
   },
   "routes": [
