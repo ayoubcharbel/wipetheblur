@@ -1,3 +1,5 @@
+import { getStats } from './_shared-data.js';
+
 export default async function handler(req, res) {
     // Set CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -13,13 +15,15 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
     
+    const stats = getStats();
+    
     return res.json({
         status: 'Bot is running!',
         timestamp: new Date().toISOString(),
-        totalUsers: 0, // Note: Data resets on serverless cold starts
-        totalMessages: 0,
-        totalStickers: 0,
-        totalActivity: 0,
+        totalUsers: stats.totalUsers,
+        totalMessages: stats.totalMessages,
+        totalStickers: stats.totalStickers,
+        totalActivity: stats.totalActivity,
         botActive: true,
         webhookPath: '/api/telegram-webhook',
         environment: process.env.NODE_ENV || 'production',

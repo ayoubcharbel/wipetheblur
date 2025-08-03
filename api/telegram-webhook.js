@@ -1,4 +1,5 @@
 const TelegramBot = require('node-telegram-bot-api');
+import { updateUserScore, generateLeaderboard, getSharedUserData } from './_shared-data.js';
 
 // Bot configuration
 const BOT_TOKEN = process.env.BOT_TOKEN;
@@ -9,86 +10,6 @@ if (!BOT_TOKEN) {
 
 // Initialize bot (webhook mode)
 const bot = new TelegramBot(BOT_TOKEN, { polling: false });
-
-// In-memory user data (resets on cold starts)
-let userData = {};
-
-// Get or create user record
-function getUser(userId, userInfo) {
-    if (!userData[userId]) {
-        userData[userId] = {
-            id: userId,
-            username: userInfo.username || 'Unknown',
-            firstName: userInfo.first_name || 'Unknown',
-            lastName: userInfo.last_name || '',
-            messages: 0,
-            stickers: 0,
-            totalScore: 0,
-            lastSeen: new Date().toISOString()
-        };
-    } else {
-        // Update user info if it has changed
-        userData[userId].username = userInfo.username || userData[userId].username;
-        userData[userId].firstName = userInfo.first_name || userData[userId].firstName;
-        userData[userId].lastName = userInfo.last_name || userData[userId].lastName;
-        userData[userId].lastSeen = new Date().toISOString();
-    }
-    
-    return userData[userId];
-}
-
-// Update user score
-async function updateUserScore(userId, userInfo, isSticker = false) {
-    console.log('📊 Updating score for user:', {
-        userId,
-        userName: userInfo.first_name,
-        isSticker,
-        timestamp: new Date().toISOString()
-    });
-    
-    const user = getUser(userId, userInfo);
-    
-    if (isSticker) {
-        user.stickers++;
-        console.log('🎭 Sticker count increased to:', user.stickers);
-    } else {
-        user.messages++;
-        console.log('📝 Message count increased to:', user.messages);
-    }
-    
-    user.totalScore = user.messages + user.stickers;
-    console.log('🏅 Total score updated to:', user.totalScore);
-}
-
-// Generate leaderboard
-function generateLeaderboard(chatId) {
-    const users = Object.values(userData);
-    
-    if (users.length === 0) {
-        return 'No activity data available yet!';
-    }
-    
-    // Sort by total score (descending)
-    users.sort((a, b) => b.totalScore - a.totalScore);
-    
-    let leaderboard = '🏆 *Activity Leaderboard* 🏆\n\n';
-    
-    users.slice(0, 10).forEach((user, index) => {
-        const rank = index + 1;
-        const trophy = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}.`;
-        const name = user.firstName + (user.lastName ? ` ${user.lastName}` : '');
-        const username = user.username ? `(@${user.username})` : '';
-        
-        leaderboard += `${trophy} *${name}* ${username}\n`;
-        leaderboard += `   📝 Messages: ${user.messages}\n`;
-        leaderboard += `   🎭 Stickers: ${user.stickers}\n`;
-        leaderboard += `   🏅 Total Score: ${user.totalScore}\n\n`;
-    });
-    
-    leaderboard += `\n📊 Total participants: ${users.length}`;
-    
-    return leaderboard;
-}
 
 // Direct message handler
 async function handleMessage(msg) {
@@ -134,7 +55,7 @@ Your activity is now being tracked! 🎯
         }
         
         if (msg.text === '/leaderboard') {
-            const leaderboard = generateLeaderboard(chatId);
+            const leaderboard = generateLeaderboard();
             try {
                 await bot.sendMessage(chatId, leaderboard, { parse_mode: 'Markdown' });
                 console.log('✅ Leaderboard message sent successfully');
@@ -145,10 +66,11 @@ Your activity is now being tracked! 🎯
         }
         
         if (msg.text === '/mystats') {
+            const userData = getSharedUserData();
             const user = userData[userId];
             if (!user) {
                 try {
-                    await bot.sendMessage(chatId, 'You haven\'t sent any messages or stickers yet!');
+                    await bot.sendMessage(chatId, 'You haven\'t sent any messages or stickers yet! Start chatting to see your stats! 📊');
                     console.log('✅ No stats message sent successfully');
                 } catch (error) {
                     console.error('❌ Error sending no stats message:', error);
@@ -209,12 +131,12 @@ Happy chatting! 💬
         }
     } else if (msg.sticker) {
         // Handle stickers
-        await updateUserScore(userId, userInfo, true);
-        console.log(`Sticker from ${userInfo.first_name}: +1 point`);
+        updateUserScore(userId, userInfo, true);
+        console.log(`🎭 Sticker from ${userInfo.first_name}: +1 point`);
     } else if (msg.text) {
         // Handle regular messages (excluding commands)
-        await updateUserScore(userId, userInfo, false);
-        console.log(`Message from ${userInfo.first_name}: +1 point`);
+        updateUserScore(userId, userInfo, false);
+        console.log(`📝 Message from ${userInfo.first_name}: +1 point`);
     }
 }
 
@@ -236,7 +158,8 @@ export default async function handler(req, res) {
             message: 'Telegram webhook endpoint is accessible',
             timestamp: new Date().toISOString(),
             path: '/api/telegram-webhook',
-            method: 'GET'
+            method: 'GET',
+            status: 'ready'
         });
     }
     
