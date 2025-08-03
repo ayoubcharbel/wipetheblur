@@ -1,6 +1,6 @@
-import { getStats } from './_shared-data.js';
+const { getStats } = require('./_shared-data.js');
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
     // Set CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET');
@@ -30,4 +30,4 @@ export default async function handler(req, res) {
         isRender: !!process.env.RENDER,
         note: 'Data is stored in memory and resets on server restarts'
     });
-}
+};

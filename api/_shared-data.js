@@ -3,15 +3,15 @@
 
 let userData = {};
 
-export function getSharedUserData() {
+function getSharedUserData() {
     return userData;
 }
 
-export function setSharedUserData(data) {
+function setSharedUserData(data) {
     userData = data;
 }
 
-export function getUser(userId, userInfo) {
+function getUser(userId, userInfo) {
     if (!userData[userId]) {
         userData[userId] = {
             id: userId,
@@ -35,7 +35,7 @@ export function getUser(userId, userInfo) {
     return userData[userId];
 }
 
-export function updateUserScore(userId, userInfo, isSticker = false) {
+function updateUserScore(userId, userInfo, isSticker = false) {
     console.log('📊 Updating score for user:', {
         userId,
         userName: userInfo.first_name,
@@ -62,7 +62,7 @@ export function updateUserScore(userId, userInfo, isSticker = false) {
     return user;
 }
 
-export function generateLeaderboard() {
+function generateLeaderboard() {
     const users = Object.values(userData);
     
     console.log('📊 Generating leaderboard for', users.length, 'users');
@@ -93,7 +93,7 @@ export function generateLeaderboard() {
     return leaderboard;
 }
 
-export function getStats() {
+function getStats() {
     const users = Object.values(userData);
     const totalMessages = users.reduce((sum, user) => sum + user.messages, 0);
     const totalStickers = users.reduce((sum, user) => sum + user.stickers, 0);
@@ -106,3 +106,12 @@ export function getStats() {
         users
     };
 }
+
+module.exports = {
+    getSharedUserData,
+    setSharedUserData,
+    getUser,
+    updateUserScore,
+    generateLeaderboard,
+    getStats
+};

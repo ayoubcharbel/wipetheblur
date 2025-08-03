@@ -1,5 +1,5 @@
 const TelegramBot = require('node-telegram-bot-api');
-import { updateUserScore, generateLeaderboard, getSharedUserData } from './_shared-data.js';
+const { updateUserScore, generateLeaderboard, getSharedUserData } = require('./_shared-data.js');
 
 // Bot configuration
 const BOT_TOKEN = process.env.BOT_TOKEN;
@@ -140,7 +140,7 @@ Happy chatting! 💬
     }
 }
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
     // Set CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -189,4 +189,4 @@ export default async function handler(req, res) {
     }
     
     return res.status(405).json({ error: 'Method not allowed' });
-}
+};
