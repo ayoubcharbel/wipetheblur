@@ -196,8 +196,8 @@ Your activity is now being tracked! 🎯
 📊 *Your Statistics* 📊
 
 👤 Name: ${name}
-${user.username ? `🔗 Username: @${user.username}\n` : ''}📝 Messages sent: ${user.messages}
-🎭 Stickers sent: ${user.stickers}
+${user.username ? `🔗 Username: @${user.username}\n` : ''}📝 Messages sent: ${user.messageCount}
+🎭 Stickers sent: ${user.stickerCount}
 🏅 Total score: ${user.totalScore}
 
 Keep chatting to improve your rank! 🚀
