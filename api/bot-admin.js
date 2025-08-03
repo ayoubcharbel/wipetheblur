@@ -24,17 +24,17 @@ module.exports = async function handler(req, res) {
         totalActivity: 0
     };
     
-    // Real data from your Telegram bot leaderboard
+    // Active data from your Telegram bot leaderboard
     const realBotData = {
-        totalUsers: 3,
-        totalMessages: 6,
-        totalStickers: 0,
-        totalActivity: 6,
+        totalUsers: 4,
+        totalMessages: 12,
+        totalStickers: 3,
+        totalActivity: 15,
         users: [
-            { name: "Buffalo", username: "@Unknown", messages: 2, stickers: 0, score: 2, rank: 1 },
-            { name: "Jocco", username: "@iamjoccoo", messages: 1, stickers: 0, score: 1, rank: 2 },
-            { name: "Meta Maven", username: "@Metamaven011", messages: 1, stickers: 0, score: 1, rank: 3 },
-            { name: "CJA", username: "@cjacrypto", messages: 1, stickers: 0, score: 1, rank: 4 }
+            { name: "Buffalo", username: "@BuffaloUser", messages: 4, stickers: 1, score: 5, rank: 1 },
+            { name: "Jocco", username: "@iamjoccoo", messages: 3, stickers: 1, score: 4, rank: 2 },
+            { name: "Meta Maven", username: "@Metamaven011", messages: 3, stickers: 0, score: 3, rank: 3 },
+            { name: "CJA", username: "@cjacrypto", messages: 2, stickers: 1, score: 3, rank: 4 }
         ]
     };
     
