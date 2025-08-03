@@ -42,6 +42,15 @@
     },
     "api/test-activity.js": {
       "maxDuration": 30
+    },
+    "api/force-refresh.js": {
+      "maxDuration": 30
+    },
+    "api/leaderboard.js": {
+      "maxDuration": 30
+    },
+    "api/dashboard.js": {
+      "maxDuration": 30
     }
   },
   "routes": [
