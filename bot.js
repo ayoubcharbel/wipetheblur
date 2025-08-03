@@ -2,6 +2,7 @@ const TelegramBot = require('node-telegram-bot-api');
 const express = require('express');
 const fs = require('fs').promises;
 const path = require('path');
+const sharedData = require('./api/_shared-data.js');
 
 // Bot configuration
 const BOT_TOKEN = process.env.BOT_TOKEN;
@@ -92,84 +93,33 @@ app.post('/webhook', async (req, res) => {
     }
 });
 
-// Data file path
-const DATA_FILE = path.join(__dirname, 'userData.json');
-
-// Initialize user data structure
-let userData = {};
-
-// Load existing data on startup
+// Load existing data on startup using shared data module
 async function loadUserData() {
-    if (process.env.VERCEL || process.env.RENDER) {
-        console.log('🔄 Running on serverless platform - starting with fresh data in memory');
-        userData = {};
-        return;
-    }
-    
+    console.log('📂 Loading user data using shared data module...');
     try {
-        const data = await fs.readFile(DATA_FILE, 'utf8');
-        userData = JSON.parse(data);
-        console.log('📂 User data loaded successfully from file');
+        sharedData.loadUserData();
+        console.log('📂 User data loaded successfully');
     } catch (error) {
-        console.log('📂 No existing data file found, starting fresh');
-        userData = {};
+        console.log('📂 Error loading data, starting fresh:', error.message);
     }
 }
 
-// Save data to file (Note: On Render, file storage is persistent)
+// Save data using shared data module
 async function saveUserData() {
-    if (process.env.VERCEL) {
-        console.log('💾 Running on Vercel - data stored in memory only (resets on cold starts)');
-        console.log('💾 Current user data:', Object.keys(userData).length, 'users');
-        return; // Don't try to write files on Vercel (serverless)
-    }
-    
-    if (process.env.RENDER) {
-        console.log('💾 Running on Render - enabling persistent file storage');
-        console.log('💾 Current user data:', Object.keys(userData).length, 'users');
-        // On Render, we have persistent disk storage, so we can save files
-        try {
-            await fs.writeFile(DATA_FILE, JSON.stringify(userData, null, 2));
-            console.log('💾 User data saved to file successfully');
-        } catch (error) {
-            console.error('❌ Error saving user data:', error);
-        }
-        return;
-    }
-    
     try {
-        await fs.writeFile(DATA_FILE, JSON.stringify(userData, null, 2));
-        console.log('💾 User data saved to file successfully');
+        sharedData.saveUserData();
+        console.log('💾 User data saved successfully');
     } catch (error) {
         console.error('❌ Error saving user data:', error);
     }
 }
 
-// Get or create user record
+// Get or create user record using shared data module
 function getUser(userId, userInfo) {
-    if (!userData[userId]) {
-        userData[userId] = {
-            id: userId,
-            username: userInfo.username || 'Unknown',
-            firstName: userInfo.first_name || 'Unknown',
-            lastName: userInfo.last_name || '',
-            messages: 0,
-            stickers: 0,
-            totalScore: 0,
-            lastSeen: new Date().toISOString()
-        };
-    } else {
-        // Update user info if it has changed
-        userData[userId].username = userInfo.username || userData[userId].username;
-        userData[userId].firstName = userInfo.first_name || userData[userId].firstName;
-        userData[userId].lastName = userInfo.last_name || userData[userId].lastName;
-        userData[userId].lastSeen = new Date().toISOString();
-    }
-    
-    return userData[userId];
+    return sharedData.getUser(userId, userInfo);
 }
 
-// Update user score
+// Update user score using shared data module
 async function updateUserScore(userId, userInfo, isSticker = false) {
     console.log('📊 Updating score for user:', {
         userId,
@@ -178,51 +128,13 @@ async function updateUserScore(userId, userInfo, isSticker = false) {
         timestamp: new Date().toISOString()
     });
     
-    const user = getUser(userId, userInfo);
-    
-    if (isSticker) {
-        user.stickers++;
-        console.log('🎭 Sticker count increased to:', user.stickers);
-    } else {
-        user.messages++;
-        console.log('📝 Message count increased to:', user.messages);
-    }
-    
-    user.totalScore = user.messages + user.stickers;
-    console.log('🏅 Total score updated to:', user.totalScore);
-    
-    await saveUserData();
-    console.log('💾 User data saved successfully');
+    const user = sharedData.updateUserScore(userId, userInfo, isSticker);
+    console.log('✅ Score updated successfully:', user.totalScore);
 }
 
-// Generate leaderboard
+// Generate leaderboard using shared data module
 function generateLeaderboard(chatId) {
-    const users = Object.values(userData);
-    
-    if (users.length === 0) {
-        return 'No activity data available yet!';
-    }
-    
-    // Sort by total score (descending)
-    users.sort((a, b) => b.totalScore - a.totalScore);
-    
-    let leaderboard = '🏆 *Activity Leaderboard* 🏆\n\n';
-    
-    users.slice(0, 10).forEach((user, index) => {
-        const rank = index + 1;
-        const trophy = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}.`;
-        const name = user.firstName + (user.lastName ? ` ${user.lastName}` : '');
-        const username = user.username ? `(@${user.username})` : '';
-        
-        leaderboard += `${trophy} *${name}* ${username}\n`;
-        leaderboard += `   📝 Messages: ${user.messages}\n`;
-        leaderboard += `   🎭 Stickers: ${user.stickers}\n`;
-        leaderboard += `   🏅 Total Score: ${user.totalScore}\n\n`;
-    });
-    
-    leaderboard += `\n📊 Total participants: ${users.length}`;
-    
-    return leaderboard;
+    return sharedData.generateLeaderboard();
 }
 
 // Direct message handler for webhook processing
@@ -272,6 +184,7 @@ Your activity is now being tracked! 🎯
         }
         
         if (msg.text === '/mystats') {
+            const userData = sharedData.getSharedUserData();
             const user = userData[userId];
             if (!user) {
                 try {
@@ -382,20 +295,17 @@ app.get('/debug', (req, res) => {
 
 // Bot status API endpoint
 app.get('/bot-status', (req, res) => {
-    const users = Object.values(userData);
-    const totalMessages = users.reduce((sum, user) => sum + user.messages, 0);
-    const totalStickers = users.reduce((sum, user) => sum + user.stickers, 0);
+    const stats = sharedData.getStats();
     
     res.json({
         status: 'Bot is running!',
         timestamp: new Date().toISOString(),
-        totalUsers: Object.keys(userData).length,
-        totalMessages,
-        totalStickers,
-        totalActivity: totalMessages + totalStickers,
+        totalUsers: stats.totalUsers,
+        totalMessages: stats.totalMessages,
+        totalStickers: stats.totalStickers,
+        totalActivity: stats.totalActivity,
         botActive: true,
         webhookPath: WEBHOOK_PATH,
-        dataFile: DATA_FILE,
         environment: process.env.NODE_ENV || 'development',
         isVercel: !!process.env.VERCEL,
         isRender: !!process.env.RENDER
@@ -404,16 +314,15 @@ app.get('/bot-status', (req, res) => {
 
 // Bot statistics API endpoint
 app.get('/bot-stats', (req, res) => {
-    const users = Object.values(userData);
-    const totalMessages = users.reduce((sum, user) => sum + user.messages, 0);
-    const totalStickers = users.reduce((sum, user) => sum + user.stickers, 0);
+    const stats = sharedData.getStats();
+    const topUsers = stats.users.sort((a, b) => b.totalScore - a.totalScore).slice(0, 5);
     
     res.json({
-        totalUsers: users.length,
-        totalMessages,
-        totalStickers,
-        totalActivity: totalMessages + totalStickers,
-        topUsers: users.sort((a, b) => b.totalScore - a.totalScore).slice(0, 5)
+        totalUsers: stats.totalUsers,
+        totalMessages: stats.totalMessages,
+        totalStickers: stats.totalStickers,
+        totalActivity: stats.totalActivity,
+        topUsers: topUsers
     });
 });
 
@@ -578,9 +487,10 @@ app.get('/setup-webhook-render', async (req, res) => {
 
 // Bot admin page
 app.get('/bot-admin', (req, res) => {
-    const users = Object.values(userData);
-    const totalMessages = users.reduce((sum, user) => sum + user.messages, 0);
-    const totalStickers = users.reduce((sum, user) => sum + user.stickers, 0);
+    const stats = sharedData.getStats();
+    const users = stats.users;
+    const totalMessages = stats.totalMessages;
+    const totalStickers = stats.totalStickers;
     
     const adminHTML = `
 <!DOCTYPE html>

@@ -20,37 +20,41 @@ module.exports = async function handler(req, res) {
                 totalUsers: forcedData.totalUsers,
                 totalMessages: forcedData.totalMessages,
                 totalStickers: forcedData.totalStickers,
-                totalActivity: forcedData.totalActivity
+                totalActivity: forcedData.totalActivity,
+                users: forcedData.users
             };
-            console.log('📊 Using forced data:', stats);
         } catch (error) {
-            // Fallback to shared data
             const sharedData = require('./_shared-data');
             stats = sharedData.getStats();
-            console.log('📊 Using shared data:', stats);
         }
         
+        // Sort users by total score descending
+        const sortedUsers = stats.users.sort((a, b) => b.totalScore - a.totalScore);
+        
+        console.log('📊 Leaderboard requested, returning data for', sortedUsers.length, 'users');
+        
         return res.json({
-            status: 'Bot is running!',
-            timestamp: new Date().toISOString(),
+            success: true,
             totalUsers: stats.totalUsers,
             totalMessages: stats.totalMessages,
             totalStickers: stats.totalStickers,
             totalActivity: stats.totalActivity,
-            botActive: true
+            leaderboard: sortedUsers.slice(0, 10), // Top 10 users
+            timestamp: new Date().toISOString()
         });
+        
     } catch (error) {
-        console.error('❌ Bot status error:', error);
+        console.error('❌ Leaderboard API error:', error);
         
         return res.json({
-            status: 'Bot is running!',
-            timestamp: new Date().toISOString(),
+            success: false,
+            error: error.message,
+            leaderboard: [],
             totalUsers: 0,
             totalMessages: 0,
             totalStickers: 0,
             totalActivity: 0,
-            botActive: true,
-            note: 'Fresh start - no data yet'
+            timestamp: new Date().toISOString()
         });
     }
 };

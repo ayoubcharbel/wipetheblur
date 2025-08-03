@@ -1,9 +1,5 @@
 const TelegramBot = require('node-telegram-bot-api');
-
-// Simple in-memory storage
-let users = {};
-let totalMessages = 0;
-let totalStickers = 0;
+const sharedData = require('./_shared-data.js');
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 
@@ -14,39 +10,18 @@ if (!BOT_TOKEN) {
 const bot = new TelegramBot(BOT_TOKEN, { polling: false });
 
 function addUserActivity(userId, firstName, username, isSticker = false) {
-    if (!users[userId]) {
-        users[userId] = {
-            id: userId,
-            firstName: firstName,
-            username: username,
-            messages: 0,
-            stickers: 0,
-            total: 0
-        };
-    }
+    const userInfo = {
+        id: userId,
+        first_name: firstName,
+        username: username || 'Unknown'
+    };
     
-    if (isSticker) {
-        users[userId].stickers++;
-        totalStickers++;
-    } else {
-        users[userId].messages++;
-        totalMessages++;
-    }
-    
-    users[userId].total = users[userId].messages + users[userId].stickers;
-    
-    console.log(`✅ User ${firstName}: ${users[userId].total} points`);
+    const user = sharedData.updateUserScore(userId, userInfo, isSticker);
+    console.log(`✅ User ${firstName}: ${user.totalScore} points`);
 }
 
 function getStats() {
-    const userList = Object.values(users);
-    return {
-        totalUsers: userList.length,
-        totalMessages: totalMessages,
-        totalStickers: totalStickers,
-        totalActivity: totalMessages + totalStickers,
-        users: userList
-    };
+    return sharedData.getStats();
 }
 
 async function handleUpdate(update) {
@@ -79,23 +54,8 @@ async function handleUpdate(update) {
             }
             
             if (msg.text === '/leaderboard') {
-                const stats = getStats();
-                let leaderboard = '🏆 Leaderboard:\n\n';
-                
-                if (stats.users.length === 0) {
-                    leaderboard += 'No users yet!';
-                } else {
-                    stats.users
-                        .sort((a, b) => b.total - a.total)
-                        .slice(0, 10)
-                        .forEach((user, index) => {
-                            const rank = index + 1;
-                            const trophy = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}.`;
-                            leaderboard += `${trophy} ${user.firstName}: ${user.total} points\n`;
-                        });
-                }
-                
-                await bot.sendMessage(chatId, leaderboard);
+                const leaderboard = sharedData.generateLeaderboard();
+                await bot.sendMessage(chatId, leaderboard, { parse_mode: 'Markdown' });
                 console.log('✅ Leaderboard message sent');
                 return;
             }

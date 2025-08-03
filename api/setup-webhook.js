@@ -35,7 +35,7 @@ module.exports = async function handler(req, res) {
         await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
         
         // Set new webhook with bot API domain URL
-        const webhookUrl = `https://www.wipetheblur.com/api/telegram-webhook`;
+        const webhookUrl = `https://www.wipetheblur.com/api/simple-bot`;
         console.log('🔧 Setting webhook to:', webhookUrl);
         
         const result = await bot.setWebHook(webhookUrl, {

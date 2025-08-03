@@ -192,18 +192,120 @@ module.exports = async function handler(req, res) {
         async function refreshData() {
             try {
                 console.log('Refreshing bot data...');
-                const response = await fetch('/api/bot-status');
-                const data = await response.json();
+                
+                // Fetch bot status
+                const statusResponse = await fetch('/api/bot-status');
+                const statusData = await statusResponse.json();
                 
                 // Update counters
-                document.getElementById('totalUsers').textContent = data.totalUsers || 0;
-                document.getElementById('totalMessages').textContent = data.totalMessages || 0;
-                document.getElementById('totalStickers').textContent = data.totalStickers || 0;
-                document.getElementById('totalActivity').textContent = data.totalActivity || 0;
+                document.getElementById('totalUsers').textContent = statusData.totalUsers || 0;
+                document.getElementById('totalMessages').textContent = statusData.totalMessages || 0;
+                document.getElementById('totalStickers').textContent = statusData.totalStickers || 0;
+                document.getElementById('totalActivity').textContent = statusData.totalActivity || 0;
                 
-                console.log('Data refreshed:', data);
+                // Fetch and update leaderboard
+                const leaderboardResponse = await fetch('/api/leaderboard');
+                const leaderboardData = await leaderboardResponse.json();
+                
+                if (leaderboardData.success && leaderboardData.leaderboard.length > 0) {
+                    updateLeaderboard(leaderboardData.leaderboard);
+                } else {
+                    showEmptyLeaderboard();
+                }
+                
+                console.log('Data refreshed:', statusData, leaderboardData);
             } catch (error) {
                 console.error('Error refreshing data:', error);
+                showErrorState();
+            }
+        }
+        
+        function updateLeaderboard(users) {
+            const leaderboardContainer = document.getElementById('leaderboard-container');
+            if (!leaderboardContainer) {
+                // Create leaderboard container if it doesn't exist
+                createLeaderboardSection();
+                return updateLeaderboard(users);
+            }
+            
+            let leaderboardHTML = '';
+            users.slice(0, 10).forEach((user, index) => {
+                const rank = index + 1;
+                const trophy = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank + '.';
+                const badgeClass = rank <= 3 ? 'table-warning' : '';
+                
+                leaderboardHTML += 
+                    '<tr class="' + badgeClass + '">' +
+                        '<td><strong>' + trophy + '</strong></td>' +
+                        '<td><strong>' + user.firstName + ' ' + (user.lastName || '') + '</strong></td>' +
+                        '<td><span class="text-muted">@' + (user.username || 'Unknown') + '</span></td>' +
+                        '<td><span class="badge bg-primary">' + user.messages + '</span></td>' +
+                        '<td><span class="badge bg-warning">' + user.stickers + '</span></td>' +
+                        '<td><span class="badge bg-success">' + user.totalScore + '</span></td>' +
+                    '</tr>';
+            });
+            
+            leaderboardContainer.innerHTML = leaderboardHTML;
+        }
+        
+        function showEmptyLeaderboard() {
+            const leaderboardContainer = document.getElementById('leaderboard-container');
+            if (leaderboardContainer) {
+                leaderboardContainer.innerHTML = 
+                    '<tr>' +
+                        '<td colspan="6" class="text-center text-muted">' +
+                            '<i class="fas fa-users fa-3x mb-3"></i><br>' +
+                            'No users yet! Start chatting in the Telegram group to appear on the leaderboard.' +
+                        '</td>' +
+                    '</tr>';
+            }
+        }
+        
+        function showErrorState() {
+            document.getElementById('totalUsers').textContent = '-';
+            document.getElementById('totalMessages').textContent = '-';
+            document.getElementById('totalStickers').textContent = '-';
+            document.getElementById('totalActivity').textContent = '-';
+            showEmptyLeaderboard();
+        }
+        
+        function createLeaderboardSection() {
+            const leaderboardHTML = 
+                '<div class="row mt-4">' +
+                    '<div class="col-12">' +
+                        '<div class="card">' +
+                            '<div class="card-header bg-primary text-white">' +
+                                '<h5 class="mb-0">' +
+                                    '<i class="fas fa-trophy me-2"></i>' +
+                                    '🏆 Live Leaderboard' +
+                                '</h5>' +
+                            '</div>' +
+                            '<div class="card-body">' +
+                                '<div class="table-responsive">' +
+                                    '<table class="table table-hover">' +
+                                        '<thead class="table-dark">' +
+                                            '<tr>' +
+                                                '<th>Rank</th>' +
+                                                '<th>Name</th>' +
+                                                '<th>Username</th>' +
+                                                '<th>Messages</th>' +
+                                                '<th>Stickers</th>' +
+                                                '<th>Score</th>' +
+                                            '</tr>' +
+                                        '</thead>' +
+                                        '<tbody id="leaderboard-container">' +
+                                        '</tbody>' +
+                                    '</table>' +
+                                '</div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+            
+            // Insert before the action buttons
+            const actionsSection = document.querySelector('.text-center.mb-4');
+            if (actionsSection) {
+                actionsSection.insertAdjacentHTML('beforebegin', leaderboardHTML);
             }
         }
         

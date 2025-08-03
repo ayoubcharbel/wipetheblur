@@ -1,23 +1,23 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Real confirmed bot data from Telegram testing
+    // Initial bot data (will be updated from API)
     let botData = {
         status: 'Bot is running!',
-        totalUsers: 3,
-        totalMessages: 6,
+        totalUsers: 0,
+        totalMessages: 0,
         totalStickers: 0,
-        totalActivity: 6,
+        totalActivity: 0,
         botActive: true,
         timestamp: new Date().toISOString()
     };
 
-    console.log('🚀 Page loaded with confirmed real data:', botData);
+    console.log('🚀 Page loaded, will fetch live data from API:', botData);
 
     // Function to fetch bot status from API
     async function fetchBotStatus() {
         try {
             console.log('🔄 Attempting to fetch from API...');
             
-            const response = await fetch('/api/bot-status', {
+            const response = await fetch('/bot-status', {
                 method: 'GET',
                 headers: {
                     'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -34,41 +34,35 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('📊 API Response:', data);
             
             if (data && typeof data === 'object') {
-                // Only update if API has meaningful data
-                if (data.totalUsers > 0 || data.totalMessages > 0 || data.totalActivity > 0) {
-                    botData = {
-                        status: data.status || 'Bot is running!',
-                        totalUsers: data.totalUsers || 0,
-                        totalMessages: data.totalMessages || 0,
-                        totalStickers: data.totalStickers || 0,
-                        totalActivity: data.totalActivity || 0,
-                        botActive: data.botActive !== false,
-                        timestamp: data.timestamp || new Date().toISOString()
-                    };
-                    console.log('✅ Updated with API data:', botData);
-                } else {
-                    console.log('⚠️ API returned zeros, keeping confirmed real data');
-                }
+                // Always update with API data (even if zeros)
+                botData = {
+                    status: data.status || 'Bot is running!',
+                    totalUsers: data.totalUsers || 0,
+                    totalMessages: data.totalMessages || 0,
+                    totalStickers: data.totalStickers || 0,
+                    totalActivity: data.totalActivity || 0,
+                    botActive: data.botActive !== false,
+                    timestamp: data.timestamp || new Date().toISOString()
+                };
+                console.log('✅ Updated with API data:', botData);
             }
+            
+            return true;
         } catch (error) {
-            console.log('API fetch failed, keeping confirmed real data:', error);
+            console.error('Error fetching bot status:', error);
+            
+            // Update with error state
+            botData = {
+                status: 'Connection Error',
+                totalUsers: '-',
+                totalMessages: '-',
+                totalStickers: '-',
+                totalActivity: '-',
+                botActive: false,
+                timestamp: new Date().toISOString()
+            };
+            return false;
         }
-        
-        return true;
-    } catch (error) {
-        console.error('Error fetching bot status:', error);
-        
-        // Update with error state
-        botData = {
-            status: 'Connection Error',
-            totalUsers: '-',
-            totalMessages: '-',
-            totalStickers: '-',
-            totalActivity: '-',
-            botActive: false,
-            timestamp: new Date().toISOString()
-        };
-        return false;
     }
 
     // Update all UI elements with current bot data
