@@ -150,9 +150,9 @@ Your activity is now being tracked! 🎯
         }
         
         if (msg.text === '/leaderboard') {
-            const leaderboard = generateLeaderboard();
+            const leaderboardMessage = generateLeaderboard();
             try {
-                await bot.sendMessage(chatId, leaderboard, { parse_mode: 'Markdown' });
+                await bot.sendMessage(chatId, leaderboardMessage, { parse_mode: 'Markdown' });
                 console.log('✅ Leaderboard message sent successfully');
             } catch (error) {
                 console.error('❌ Error sending leaderboard message:', error);
@@ -161,11 +161,10 @@ Your activity is now being tracked! 🎯
         }
         
         if (msg.text === '/mystats') {
-            const userData = getSharedUserData();
-            const user = userData[userId];
+            const user = getUserStats(userId);
             if (!user) {
                 try {
-                    await bot.sendMessage(chatId, 'You haven\'t sent any messages or stickers yet! Start chatting to see your stats! 📊');
+                    await bot.sendMessage(chatId, "📊 You haven't sent any messages or stickers yet! Start chatting to see your stats! 🚀");
                     console.log('✅ No stats message sent successfully');
                 } catch (error) {
                     console.error('❌ Error sending no stats message:', error);
