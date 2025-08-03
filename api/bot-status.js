@@ -27,6 +27,7 @@ module.exports = async function handler(req, res) {
         botActive: true,
         webhookPath: '/api/telegram-webhook',
         environment: process.env.NODE_ENV || 'production',
+        isVercel: !!process.env.VERCEL,
         isRender: !!process.env.RENDER,
         note: 'Data is stored in memory and resets on server restarts'
     });

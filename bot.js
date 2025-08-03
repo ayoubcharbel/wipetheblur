@@ -100,8 +100,8 @@ let userData = {};
 
 // Load existing data on startup
 async function loadUserData() {
-    if (process.env.RENDER) {
-        console.log('🔄 Running on Render - starting with fresh data in memory');
+    if (process.env.VERCEL || process.env.RENDER) {
+        console.log('🔄 Running on serverless platform - starting with fresh data in memory');
         userData = {};
         return;
     }
@@ -118,6 +118,12 @@ async function loadUserData() {
 
 // Save data to file (Note: On Render, file storage is persistent)
 async function saveUserData() {
+    if (process.env.VERCEL) {
+        console.log('💾 Running on Vercel - data stored in memory only (resets on cold starts)');
+        console.log('💾 Current user data:', Object.keys(userData).length, 'users');
+        return; // Don't try to write files on Vercel (serverless)
+    }
+    
     if (process.env.RENDER) {
         console.log('💾 Running on Render - enabling persistent file storage');
         console.log('💾 Current user data:', Object.keys(userData).length, 'users');
@@ -391,6 +397,7 @@ app.get('/bot-status', (req, res) => {
         webhookPath: WEBHOOK_PATH,
         dataFile: DATA_FILE,
         environment: process.env.NODE_ENV || 'development',
+        isVercel: !!process.env.VERCEL,
         isRender: !!process.env.RENDER
     });
 });
@@ -441,6 +448,9 @@ app.get('/setup-webhook', async (req, res) => {
         if (process.env.RENDER) {
             // Use Render URL
             webhookUrl = `https://legendary-chainsaw.onrender.com${WEBHOOK_PATH}`;
+        } else if (process.env.VERCEL) {
+            // Use Vercel URL (fallback)
+            webhookUrl = `https://www.wipetheblur.com${WEBHOOK_PATH}`;
         } else if (process.env.RENDER) {
             // Use Render URL (fallback)
             webhookUrl = `https://www.wipetheblur.com${WEBHOOK_PATH}`;
