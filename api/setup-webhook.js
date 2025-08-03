@@ -27,8 +27,8 @@ export default async function handler(req, res) {
         await bot.deleteWebHook();
         await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
         
-        // Set new webhook with Vercel API URL
-        const webhookUrl = `https://wipetheblur-q6cbfxm4f-charbel-ayoubs-projects.vercel.app/api/telegram-webhook`;
+        // Set new webhook with current domain URL
+        const webhookUrl = `https://www.wipetheblur.com/api/telegram-webhook`;
         console.log('🔧 Setting webhook to:', webhookUrl);
         
         const result = await bot.setWebHook(webhookUrl, {
