@@ -13,6 +13,12 @@ const bot = new TelegramBot(BOT_TOKEN, { polling: false });
 
 // Direct message handler
 async function handleMessage(msg) {
+    // Validate message structure
+    if (!msg || !msg.chat || !msg.from) {
+        console.log('⚠️ Invalid message structure:', JSON.stringify(msg, null, 2));
+        return;
+    }
+    
     const chatId = msg.chat.id;
     const userId = msg.from.id;
     const userInfo = msg.from;
@@ -170,15 +176,28 @@ module.exports = async function handler(req, res) {
             const update = req.body;
             
             // Validate update structure
-            if (!update || !update.message) {
-                console.log('⚠️ Invalid update structure');
-                return res.status(200).json({ status: 'ok', message: 'Invalid update' });
+            if (!update) {
+                console.log('⚠️ No update body received');
+                return res.status(200).json({ status: 'ok', message: 'No update' });
             }
             
-            const message = update.message;
-            
-            // Process the message
-            await handleMessage(message);
+            // Handle different types of updates
+            if (update.message) {
+                const message = update.message;
+                console.log('📝 Received message update');
+                await handleMessage(message);
+            } else if (update.edited_message) {
+                const message = update.edited_message;
+                console.log('✏️ Received edited message update');
+                await handleMessage(message);
+            } else if (update.channel_post) {
+                const message = update.channel_post;
+                console.log('📢 Received channel post update');
+                await handleMessage(message);
+            } else {
+                console.log('ℹ️ Received other update type:', Object.keys(update));
+                return res.status(200).json({ status: 'ok', message: 'Update processed' });
+            }
             
             console.log('✅ Message processed successfully');
             return res.status(200).json({ status: 'ok', message: 'Message processed' });
