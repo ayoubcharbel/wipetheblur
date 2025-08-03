@@ -62,17 +62,17 @@ This guide will help you deploy both your Wipe the Blur website and Telegram bot
    - Add custom domain: `wipetheblur.com`
    - Update your DNS A record to Render's IP
 
-### Option 3: Vercel (Static + Serverless) ⚡
+### Option 3: Render (Recommended) ⚡
 
 **Steps:**
-1. **Deploy with Vercel CLI**
-   ```bash
-   npm install -g vercel
-   vercel --prod
-   ```
+1. **Deploy to Render**
+   - Connect your GitHub repository to Render
+   - Set build command: `npm install`
+   - Set start command: `npm start`
+   - Add environment variable: `BOT_TOKEN=your_bot_token`
 
 2. **Configure Domain**
-   - In Vercel dashboard, add `wipetheblur.com`
+   - In Render dashboard, add custom domain `wipetheblur.com`
    - Update DNS as instructed
 
 ### Option 4: DigitalOcean App Platform 🌊
@@ -93,14 +93,14 @@ For production, it's recommended to use environment variables:
 
 1. **Create `.env` file** (don't commit this):
    ```env
-   BOT_TOKEN=8278016198:AAE5lKbas5dM8qMPM3M_o6X_h6g3W76sTzU
+   BOT_TOKEN=your_telegram_bot_token_here
    PORT=3000
    NODE_ENV=production
    ```
 
 2. **Update bot.js** to use environment variables:
    ```javascript
-   const BOT_TOKEN = process.env.BOT_TOKEN || '8278016198:AAE5lKbas5dM8qMPM3M_o6X_h6g3W76sTzU';
+   const BOT_TOKEN = process.env.BOT_TOKEN;
    ```
 
 3. **Set environment variables** in your hosting platform's dashboard
@@ -209,7 +209,7 @@ For groups with high activity (>1000 messages/day):
 ## 🎯 Success Checklist
 
 - [ ] Website loads at `wipetheblur.com`
-- [ ] Bot admin accessible at `wipetheblur.com/bot-admin`
+- [ ] Bot admin accessible at `wipetheblur.com/api/bot-admin`
 - [ ] Bot responds to Telegram commands
 - [ ] Leaderboard updates in real-time
 - [ ] Data persists after restarts

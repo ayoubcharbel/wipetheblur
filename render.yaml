@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: wipetheblur-bot
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: BOT_TOKEN
+        sync: false  # This should be set manually in Render dashboard for security

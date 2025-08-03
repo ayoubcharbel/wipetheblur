@@ -4,11 +4,16 @@ const fs = require('fs').promises;
 const path = require('path');
 
 // Bot configuration
-const BOT_TOKEN = process.env.BOT_TOKEN || '8278016198:AAE5lKbas5dM8qMPM3M_o6X_h6g3W76sTzU';
+const BOT_TOKEN = process.env.BOT_TOKEN;
+
+if (!BOT_TOKEN) {
+    console.error('❌ BOT_TOKEN environment variable is required!');
+    process.exit(1);
+}
 const PORT = process.env.PORT || 10000;
 
 // Initialize bot and express app  
-// Use webhook mode for serverless compatibility (Vercel)
+// Use webhook mode for serverless compatibility (Render)
 const bot = new TelegramBot(BOT_TOKEN, { 
     polling: false,
     webHook: {
@@ -95,8 +100,8 @@ let userData = {};
 
 // Load existing data on startup
 async function loadUserData() {
-    if (process.env.VERCEL) {
-        console.log('🔄 Running on Vercel - starting with fresh data in memory');
+    if (process.env.RENDER) {
+        console.log('🔄 Running on Render - starting with fresh data in memory');
         userData = {};
         return;
     }
@@ -111,12 +116,19 @@ async function loadUserData() {
     }
 }
 
-// Save data to file (Note: On Vercel, file storage is ephemeral)
+// Save data to file (Note: On Render, file storage is persistent)
 async function saveUserData() {
-    if (process.env.VERCEL) {
-        console.log('⚠️  Running on Vercel - data will be stored in memory only (resets on deployment)');
+    if (process.env.RENDER) {
+        console.log('💾 Running on Render - enabling persistent file storage');
         console.log('💾 Current user data:', Object.keys(userData).length, 'users');
-        return; // Don't try to write files on Vercel
+        // On Render, we have persistent disk storage, so we can save files
+        try {
+            await fs.writeFile(DATA_FILE, JSON.stringify(userData, null, 2));
+            console.log('💾 User data saved to file successfully');
+        } catch (error) {
+            console.error('❌ Error saving user data:', error);
+        }
+        return;
     }
     
     try {
@@ -379,7 +391,7 @@ app.get('/bot-status', (req, res) => {
         webhookPath: WEBHOOK_PATH,
         dataFile: DATA_FILE,
         environment: process.env.NODE_ENV || 'development',
-        isVercel: !!process.env.VERCEL
+        isRender: !!process.env.RENDER
     });
 });
 
@@ -429,9 +441,9 @@ app.get('/setup-webhook', async (req, res) => {
         if (process.env.RENDER) {
             // Use Render URL
             webhookUrl = `https://legendary-chainsaw.onrender.com${WEBHOOK_PATH}`;
-        } else if (process.env.VERCEL) {
-            // Use Vercel URL (fallback)
-            webhookUrl = `https://wipetheblur-q6cbfxm4f-charbel-ayoubs-projects.vercel.app${WEBHOOK_PATH}`;
+        } else if (process.env.RENDER) {
+            // Use Render URL (fallback)
+            webhookUrl = `https://www.wipetheblur.com${WEBHOOK_PATH}`;
         } else {
             // Auto-detect from request headers
             const host = req.headers.host;
@@ -524,28 +536,28 @@ app.get('/test-bot/:chatId', async (req, res) => {
     }
 });
 
-// Webhook setup with Vercel URL only
-app.get('/setup-webhook-vercel', async (req, res) => {
+// Webhook setup with Render URL
+app.get('/setup-webhook-render', async (req, res) => {
     try {
-        const webhookUrl = `https://wipetheblur-q6cbfxm4f-charbel-ayoubs-projects.vercel.app${WEBHOOK_PATH}`;
-        console.log('🔧 Setting up webhook with Vercel URL:', webhookUrl);
+        const webhookUrl = `https://www.wipetheblur.com${WEBHOOK_PATH}`;
+        console.log('🔧 Setting up webhook with Render URL:', webhookUrl);
         
         const result = await bot.setWebHook(webhookUrl);
-        console.log('✅ Vercel webhook setup result:', result);
+        console.log('✅ Render webhook setup result:', result);
         
         // Get updated webhook info
         const webhookInfo = await bot.getWebHookInfo();
         
         res.json({
             success: true,
-            message: 'Webhook set up with Vercel URL successfully!',
+            message: 'Webhook set up with Render URL successfully!',
             webhookUrl,
             result,
             webhookInfo,
             timestamp: new Date().toISOString()
         });
     } catch (error) {
-        console.error('❌ Failed to set Vercel webhook:', error);
+        console.error('❌ Failed to set Render webhook:', error);
         res.json({
             success: false,
             error: error.message,
@@ -731,8 +743,8 @@ async function startBot() {
         console.log(`🧪 Use /test-bot/{chatId} to test bot sending`);
         console.log(`💪 Bot deployment active - ${new Date().toISOString()}`);
         
-        // Log bot token for debugging
-        console.log(`🔑 Bot token: ${BOT_TOKEN.substring(0, 10)}...`);
+        // Log bot token status for debugging (but not the actual token)
+        console.log(`🔑 Bot token configured: ${BOT_TOKEN ? 'Yes' : 'No'}`);
     });
 }
 

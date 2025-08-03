@@ -23,7 +23,7 @@ export default async function handler(req, res) {
         botActive: true,
         webhookPath: '/api/telegram-webhook',
         environment: process.env.NODE_ENV || 'production',
-        isVercel: true,
-        note: 'Data is stored in memory and resets on cold starts'
+        isRender: !!process.env.RENDER,
+        note: 'Data is stored in memory and resets on server restarts'
     });
 }

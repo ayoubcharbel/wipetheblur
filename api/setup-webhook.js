@@ -1,7 +1,11 @@
 const TelegramBot = require('node-telegram-bot-api');
 
 // Bot configuration
-const BOT_TOKEN = process.env.BOT_TOKEN || '8278016198:AAE5lKbas5dM8qMPM3M_o6X_h6g3W76sTzU';
+const BOT_TOKEN = process.env.BOT_TOKEN;
+
+if (!BOT_TOKEN) {
+    throw new Error('BOT_TOKEN environment variable is required');
+}
 
 // Initialize bot (webhook mode)
 const bot = new TelegramBot(BOT_TOKEN, { polling: false });
@@ -43,7 +47,7 @@ export default async function handler(req, res) {
         
         return res.json({
             success: true,
-            message: 'Webhook configured successfully with API endpoint!',
+            message: 'Webhook configured successfully with Render API endpoint!',
             webhookUrl,
             result,
             webhookInfo,

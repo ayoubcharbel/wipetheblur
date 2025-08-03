@@ -78,7 +78,7 @@ export default async function handler(req, res) {
                         </h5>
                         <p class="card-text">
                             <strong>Status:</strong> Online<br>
-                            <strong>Environment:</strong> Vercel<br>
+                            <strong>Environment:</strong> Render<br>
                             <strong>Last Update:</strong> ${new Date().toLocaleString()}
                         </p>
                     </div>
@@ -195,7 +195,7 @@ export default async function handler(req, res) {
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6">
-                                <p><strong>Environment:</strong> Vercel Serverless</p>
+                                <p><strong>Environment:</strong> Render</p>
                                 <p><strong>Platform:</strong> Node.js</p>
                                 <p><strong>Data Storage:</strong> In-memory (resets on cold starts)</p>
                                 <p><strong>Webhook URL:</strong> https://www.wipetheblur.com/api/telegram-webhook</p>

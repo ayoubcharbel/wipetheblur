@@ -58,17 +58,22 @@ A Telegram bot that tracks user activity in group chats and maintains a persiste
 3. Create app: `heroku create your-bot-name`
 4. Deploy: `git push heroku main`
 
-#### Option 4: Vercel
-1. Install Vercel CLI: `npm i -g vercel`
-2. Deploy: `vercel`
-3. Follow the prompts
+#### Option 4: Render (Recommended)
+1. Connect GitHub repository to Render
+2. Set environment variable: `BOT_TOKEN=your_bot_token`
+3. Deploy automatically
 
 ## Configuration
 
-The bot token is currently hardcoded in `bot.js`. For production, consider using environment variables:
+The bot now uses environment variables for security. Set `BOT_TOKEN` in your hosting platform:
 
 ```javascript
-const BOT_TOKEN = process.env.BOT_TOKEN || 'your-token-here';
+const BOT_TOKEN = process.env.BOT_TOKEN;
+
+if (!BOT_TOKEN) {
+    console.error('❌ BOT_TOKEN environment variable is required!');
+    process.exit(1);
+}
 ```
 
 ## Data Storage
@@ -86,7 +91,7 @@ When hosted, the bot provides these endpoints:
 
 ## Bot Information
 
-- **Token**: `8278016198:AAE5lKbas5dM8qMPM3M_o6X_h6g3W76sTzU`
+- **Token**: Set via environment variable `BOT_TOKEN`
 - **Name**: Activity Tracker Bot
 - **Purpose**: Track user activity and maintain leaderboards
 

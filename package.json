@@ -6,14 +6,13 @@
   "scripts": {
     "start": "node bot.js",
     "dev": "nodemon bot.js",
-    "vercel-build": "echo 'Building for Vercel...'"
+    "build": "echo 'Building for Render...'"
   },
   "keywords": [
     "telegram",
     "bot",
     "activity-tracker",
-    "leaderboard",
-    "vercel"
+    "leaderboard"
   ],
   "dependencies": {
     "express": "^4.19.2",
