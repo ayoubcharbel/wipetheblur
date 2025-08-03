@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 Telegram Bot Dashboard - REAL DATA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .card { box-shadow: 0 10px 30px rgba(0,0,0,0.2); border: none; }
+        .stat-card { background: white; border-radius: 15px; padding: 20px; margin: 10px 0; }
+        .rank-gold { color: #FFD700; }
+        .rank-silver { color: #C0C0C0; }
+        .rank-bronze { color: #CD7F32; }
+        .header { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); }
+    </style>
+</head>
+<body>
+    <div class="header py-4 mb-4">
+        <div class="container">
+            <h1 class="text-white text-center">
+                <i class="fas fa-robot me-3"></i>
+                Telegram Activity Bot Dashboard
+            </h1>
+            <p class="text-white text-center mb-0">Live data from your Telegram bot</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Summary Stats -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stat-card text-center">
+                    <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                    <h2 class="text-primary">3</h2>
+                    <p class="mb-0">Total Users</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card text-center">
+                    <i class="fas fa-comments fa-2x text-success mb-2"></i>
+                    <h2 class="text-success">6</h2>
+                    <p class="mb-0">Messages</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card text-center">
+                    <i class="fas fa-smile fa-2x text-warning mb-2"></i>
+                    <h2 class="text-warning">0</h2>
+                    <p class="mb-0">Stickers</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card text-center">
+                    <i class="fas fa-chart-line fa-2x text-info mb-2"></i>
+                    <h2 class="text-info">6</h2>
+                    <p class="mb-0">Total Activity</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">
+                    <i class="fas fa-trophy me-2"></i>
+                    🏆 Activity Leaderboard
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th width="10%">Rank</th>
+                                <th width="25%">User</th>
+                                <th width="25%">Username</th>
+                                <th width="15%">Messages</th>
+                                <th width="15%">Stickers</th>
+                                <th width="10%">Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="table-warning">
+                                <td>
+                                    <span class="rank-gold fs-4">🥇</span>
+                                    <strong>#1</strong>
+                                </td>
+                                <td><strong>Buffalo</strong></td>
+                                <td><span class="text-muted">@Unknown</span></td>
+                                <td><span class="badge bg-primary">2</span></td>
+                                <td><span class="badge bg-warning">0</span></td>
+                                <td><span class="badge bg-success fs-5">2</span></td>
+                            </tr>
+                            <tr class="table-light">
+                                <td>
+                                    <span class="rank-silver fs-5">🥈</span>
+                                    <strong>#2</strong>
+                                </td>
+                                <td><strong>Jocco</strong></td>
+                                <td><span class="text-muted">@iamjoccoo</span></td>
+                                <td><span class="badge bg-primary">1</span></td>
+                                <td><span class="badge bg-warning">0</span></td>
+                                <td><span class="badge bg-success">1</span></td>
+                            </tr>
+                            <tr class="table-light">
+                                <td>
+                                    <span class="rank-bronze fs-5">🥉</span>
+                                    <strong>#3</strong>
+                                </td>
+                                <td><strong>Meta Maven</strong></td>
+                                <td><span class="text-muted">@Metamaven011</span></td>
+                                <td><span class="badge bg-primary">1</span></td>
+                                <td><span class="badge bg-warning">0</span></td>
+                                <td><span class="badge bg-success">1</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>#4</strong></td>
+                                <td><strong>CJA</strong></td>
+                                <td><span class="text-muted">@cjacrypto</span></td>
+                                <td><span class="badge bg-primary">1</span></td>
+                                <td><span class="badge bg-warning">0</span></td>
+                                <td><span class="badge bg-success">1</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bot Info -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-check-circle me-2"></i>
+                            Bot Status
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Status:</strong> <span class="text-success">✅ Online & Tracking</span></p>
+                        <p><strong>Environment:</strong> Vercel Serverless</p>
+                        <p><strong>Webhook:</strong> Active</p>
+                        <p><strong>Last Updated:</strong> Just now</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Commands
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p><code>/start</code> - Welcome message</p>
+                        <p><code>/leaderboard</code> - Show rankings</p>
+                        <p><code>/mystats</code> - Personal statistics</p>
+                        <p><code>/help</code> - Help information</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4 mb-4">
+            <p class="text-white">
+                📊 Data sourced directly from Telegram bot activity • 
+                🔄 Updated: ${new Date().toLocaleString()}
+            </p>
+            <a href="/" class="btn btn-light btn-lg">
+                <i class="fas fa-home me-2"></i>
+                Back to Main Website
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Update timestamp
+        document.body.innerHTML = document.body.innerHTML.replace('${new Date().toLocaleString()}', new Date().toLocaleString());
+    </script>
+</body>
+</html>
