@@ -67,8 +67,8 @@ async function getLeaderboardViaAPI() {
             const username = user.username ? `(@${user.username})` : '';
             
             leaderboard += `${trophy} *${name}* ${username}\n`;
-            leaderboard += `   📝 Messages: ${user.messages}\n`;
-            leaderboard += `   🎭 Stickers: ${user.stickers}\n`;
+            leaderboard += `   📝 Messages: ${user.messageCount}\n`;
+            leaderboard += `   🎭 Stickers: ${user.stickerCount}\n`;
             leaderboard += `   🏅 Total Score: ${user.totalScore}\n\n`;
         });
         
@@ -94,8 +94,11 @@ function getUserData() {
 const BOT_TOKEN = process.env.BOT_TOKEN;
 
 if (!BOT_TOKEN) {
+    console.error('❌ BOT_TOKEN environment variable is not set!');
     throw new Error('BOT_TOKEN environment variable is required');
 }
+
+console.log('✅ BOT_TOKEN is set, length:', BOT_TOKEN.length);
 
 // Initialize bot (webhook mode)
 const bot = new TelegramBot(BOT_TOKEN, { polling: false });
@@ -141,10 +144,16 @@ Your activity is now being tracked! 🎯
             `;
             
             try {
-                await bot.sendMessage(chatId, welcomeMessage, { parse_mode: 'Markdown' });
-                console.log('✅ Start message sent successfully');
+                console.log('🔄 Attempting to send start message to chatId:', chatId);
+                const result = await bot.sendMessage(chatId, welcomeMessage, { parse_mode: 'Markdown' });
+                console.log('✅ Start message sent successfully:', result.message_id);
             } catch (error) {
-                console.error('❌ Error sending start message:', error);
+                console.error('❌ Error sending start message:', {
+                    error: error.message,
+                    code: error.code,
+                    chatId: chatId,
+                    botToken: BOT_TOKEN ? 'SET' : 'NOT SET'
+                });
             }
             return;
         }
@@ -152,10 +161,15 @@ Your activity is now being tracked! 🎯
         if (msg.text === '/leaderboard') {
             const leaderboardMessage = generateLeaderboard();
             try {
-                await bot.sendMessage(chatId, leaderboardMessage, { parse_mode: 'Markdown' });
-                console.log('✅ Leaderboard message sent successfully');
+                console.log('🔄 Attempting to send leaderboard to chatId:', chatId);
+                const result = await bot.sendMessage(chatId, leaderboardMessage, { parse_mode: 'Markdown' });
+                console.log('✅ Leaderboard message sent successfully:', result.message_id);
             } catch (error) {
-                console.error('❌ Error sending leaderboard message:', error);
+                console.error('❌ Error sending leaderboard message:', {
+                    error: error.message,
+                    code: error.code,
+                    chatId: chatId
+                });
             }
             return;
         }
@@ -164,10 +178,15 @@ Your activity is now being tracked! 🎯
             const user = getUserStats(userId);
             if (!user) {
                 try {
-                    await bot.sendMessage(chatId, "📊 You haven't sent any messages or stickers yet! Start chatting to see your stats! 🚀");
-                    console.log('✅ No stats message sent successfully');
+                    console.log('🔄 Attempting to send no stats message to chatId:', chatId);
+                    const result = await bot.sendMessage(chatId, "📊 You haven't sent any messages or stickers yet! Start chatting to see your stats! 🚀");
+                    console.log('✅ No stats message sent successfully:', result.message_id);
                 } catch (error) {
-                    console.error('❌ Error sending no stats message:', error);
+                    console.error('❌ Error sending no stats message:', {
+                        error: error.message,
+                        code: error.code,
+                        chatId: chatId
+                    });
                 }
                 return;
             }
