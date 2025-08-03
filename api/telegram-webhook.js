@@ -1,24 +1,40 @@
 const TelegramBot = require('node-telegram-bot-api');
 
-// Function to update activity via API call
-async function updateActivityViaAPI(userId, userInfo, isSticker = false) {
+// In-memory storage that actually works
+let userData = {};
+
+// Fast user activity update - NO API CALLS
+function updateUserActivity(userId, userInfo, isSticker = false) {
     try {
-        const response = await fetch('https://www.wipetheblur.com/api/data-store', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId, userInfo, isSticker })
-        });
-        
-        if (!response.ok) {
-            console.error('❌ Failed to update activity via API:', response.status);
-            return null;
+        // Initialize user if not exists
+        if (!userData[userId]) {
+            userData[userId] = {
+                id: userId,
+                firstName: userInfo.first_name || 'Unknown',
+                lastName: userInfo.last_name || '',
+                username: userInfo.username || 'No username',
+                messageCount: 0,
+                stickerCount: 0,
+                totalScore: 0,
+                firstSeen: new Date(),
+                lastActivity: new Date()
+            };
         }
         
-        const result = await response.json();
-        console.log('✅ Activity updated via API:', result);
-        return result;
+        // Update activity
+        if (isSticker) {
+            userData[userId].stickerCount++;
+        } else {
+            userData[userId].messageCount++;
+        }
+        
+        userData[userId].totalScore = userData[userId].messageCount + userData[userId].stickerCount;
+        userData[userId].lastActivity = new Date();
+        
+        console.log(`✅ Updated ${userInfo.first_name}: ${userData[userId].totalScore} points`);
+        return userData[userId];
     } catch (error) {
-        console.error('❌ Error updating activity via API:', error);
+        console.error('❌ Error updating user activity:', error);
         return null;
     }
 }
@@ -64,21 +80,9 @@ async function getLeaderboardViaAPI() {
     }
 }
 
-// Function to get user stats via API
-async function getUserStatsViaAPI(userId) {
-    try {
-        const response = await fetch('https://www.wipetheblur.com/api/data-store');
-        if (!response.ok) {
-            console.error('❌ Failed to get data via API:', response.status);
-            return null;
-        }
-        
-        const data = await response.json();
-        return data.users[userId] || null;
-    } catch (error) {
-        console.error('❌ Error getting user stats via API:', error);
-        return null;
-    }
+// Fast user stats - NO API CALLS
+function getUserStats(userId) {
+    return userData[userId] || null;
 }
 
 // Bot configuration
@@ -217,11 +221,11 @@ Happy chatting! 💬
         }
     } else if (msg.sticker) {
         // Handle stickers
-        await updateActivityViaAPI(userId, userInfo, true);
+        updateUserActivity(userId, userInfo, true);
         console.log(`🎭 Sticker from ${userInfo.first_name}: +1 point`);
     } else if (msg.text) {
         // Handle regular messages (excluding commands)
-        await updateActivityViaAPI(userId, userInfo, false);
+        updateUserActivity(userId, userInfo, false);
         console.log(`📝 Message from ${userInfo.first_name}: +1 point`);
     }
 }
