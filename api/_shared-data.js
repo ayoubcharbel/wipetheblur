@@ -12,24 +12,25 @@ const dataFilePath = process.env.VERCEL ? '/tmp/userData.json' : path.join(proce
 
 // Load user data from file (with error handling)
 function loadUserData() {
-    if (isDataLoaded) return; // Prevent multiple loads
-    
     try {
         console.log('📁 Loading user data from:', dataFilePath);
         if (fs.existsSync(dataFilePath)) {
             const fileData = fs.readFileSync(dataFilePath, 'utf8');
             if (fileData.trim()) {
-                userData = JSON.parse(fileData);
-                console.log('✅ User data loaded successfully:', Object.keys(userData).length, 'users');
+                const loadedData = JSON.parse(fileData);
+                // Only update if we loaded valid data
+                if (loadedData && typeof loadedData === 'object') {
+                    userData = loadedData;
+                    console.log('✅ User data loaded successfully:', Object.keys(userData).length, 'users');
+                }
             }
         } else {
             console.log('📝 No existing data file found, starting fresh');
         }
     } catch (error) {
         console.error('❌ Error loading user data:', error.message);
-        userData = {}; // Start fresh if file is corrupted
+        // Don't reset userData if loading fails - keep existing data
     }
-    isDataLoaded = true;
 }
 
 // Save user data to file (with error handling)
@@ -50,11 +51,10 @@ function saveUserData() {
     }
 }
 
-// Auto-load data on first access
-loadUserData();
+// Note: loadUserData() is called when needed, not on module load
 
 function getSharedUserData() {
-    loadUserData(); // Ensure data is loaded
+    loadUserData(); // Always load fresh data
     return userData;
 }
 
@@ -87,7 +87,7 @@ function getUser(userId, userInfo) {
 }
 
 function updateUserScore(userId, userInfo, isSticker = false) {
-    loadUserData(); // Ensure data is loaded
+    loadUserData(); // Load fresh data before updating
     
     console.log('📊 Updating score for user:', {
         userId,
@@ -150,10 +150,19 @@ function generateLeaderboard() {
 }
 
 function getStats() {
-    loadUserData(); // Ensure data is loaded
+    loadUserData(); // Always load fresh data for stats
     const users = Object.values(userData);
     const totalMessages = users.reduce((sum, user) => sum + user.messages, 0);
     const totalStickers = users.reduce((sum, user) => sum + user.stickers, 0);
+    
+    console.log('📊 Stats calculated:', {
+        totalUsers: users.length,
+        totalMessages,
+        totalStickers,
+        totalActivity: totalMessages + totalStickers,
+        dataFilePath,
+        fileExists: fs.existsSync(dataFilePath)
+    });
     
     return {
         totalUsers: users.length,
