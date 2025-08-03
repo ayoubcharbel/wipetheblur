@@ -16,13 +16,26 @@ module.exports = async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
     
-    // Show real current bot activity data from leaderboard
-    const stats = {
-        totalUsers: 3,
-        totalMessages: 6,
-        totalStickers: 0,
-        totalActivity: 6
-    };
+    // Get real data from webhook storage via shared variable
+    const { getUserData } = require('./telegram-webhook.js');
+    let stats = { totalUsers: 0, totalMessages: 0, totalStickers: 0, totalActivity: 0 };
+    
+    try {
+        const userData = getUserData();
+        const users = Object.values(userData);
+        
+        stats = {
+            totalUsers: users.length,
+            totalMessages: users.reduce((sum, user) => sum + user.messageCount, 0),
+            totalStickers: users.reduce((sum, user) => sum + user.stickerCount, 0),
+            totalActivity: users.reduce((sum, user) => sum + user.totalScore, 0)
+        };
+        
+        console.log('📊 Real stats from webhook:', stats);
+    } catch (error) {
+        console.log('⚠️ Using fallback stats, webhook data not available:', error.message);
+        // Keep default stats
+    }
     
     console.log('📊 Returning confirmed bot activity data');
     

@@ -85,6 +85,11 @@ function getUserStats(userId) {
     return userData[userId] || null;
 }
 
+// Export function to get userData for other modules
+function getUserData() {
+    return userData;
+}
+
 // Bot configuration
 const BOT_TOKEN = process.env.BOT_TOKEN;
 
@@ -293,3 +298,6 @@ module.exports = async function handler(req, res) {
     
     return res.status(405).json({ error: 'Method not allowed' });
 };
+
+// Export getUserData function for other modules
+module.exports.getUserData = getUserData;
