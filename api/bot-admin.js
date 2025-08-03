@@ -47,31 +47,36 @@ module.exports = async function handler(req, res) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Bot Admin - Wipe the Blur</title>
+    <title>🤖 Telegram Bot Dashboard - WORKING</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .status-card { border-left: 4px solid #28a745; }
-        .stats-card { border-left: 4px solid #007bff; }
-        .users-card { border-left: 4px solid #ffc107; }
-        .webhook-card { border-left: 4px solid #6f42c1; }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .card { box-shadow: 0 15px 35px rgba(0,0,0,0.1); border: none; border-radius: 15px; margin-bottom: 25px; }
+        .stat-card { background: white; border-radius: 15px; padding: 30px 20px; text-align: center; transition: transform 0.3s ease; }
+        .stat-card:hover { transform: translateY(-5px); }
+        .live-badge { background: #00ff00; color: #000; padding: 4px 8px; border-radius: 20px; font-size: 0.8em; }
+        .header-card { background: rgba(255,255,255,0.1); backdrop-filter: blur(15px); border-radius: 15px; }
     </style>
 </head>
-<body class="bg-light">
-    <nav class="navbar navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/">
-                <i class="fas fa-robot me-2"></i>
-                Telegram Bot Admin
-            </a>
-            <a href="/" class="btn btn-outline-light btn-sm">
-                <i class="fas fa-home me-1"></i>
+<body>
+    <div class="container py-5">
+        <!-- Header -->
+        <div class="header-card p-4 text-center mb-5">
+            <h1 class="text-white display-4 mb-3">
+                <i class="fas fa-robot me-3"></i>
+                Telegram Bot Dashboard
+            </h1>
+            <p class="text-white-50 fs-5 mb-2">
+                <span class="live-badge me-2">LIVE</span>
+                Real-time Bot Activity & Statistics
+            </p>
+            <p class="text-white fs-6 mb-3">Updated: ${new Date().toLocaleString()}</p>
+            <a href="/" class="btn btn-light btn-lg">
+                <i class="fas fa-home me-2"></i>
                 Back to Website
             </a>
         </div>
-    </nav>
-    
-    <div class="container mt-4">
         <div class="row">
             <div class="col-md-3 mb-4">
                 <div class="card status-card">
