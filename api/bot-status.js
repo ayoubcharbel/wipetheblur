@@ -29,6 +29,6 @@ module.exports = async function handler(req, res) {
         environment: process.env.NODE_ENV || 'production',
         isVercel: !!process.env.VERCEL,
         isRender: !!process.env.RENDER,
-        note: 'Data is stored in memory and resets on server restarts'
+        note: 'Data is stored persistently and survives server restarts'
     });
 };
