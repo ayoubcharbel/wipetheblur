@@ -34,8 +34,8 @@ module.exports = async function handler(req, res) {
         await bot.deleteWebHook();
         await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
         
-        // Set new webhook with current domain URL
-        const webhookUrl = `https://www.wipetheblur.com/api/telegram-webhook`;
+        // Set new webhook with actual Render domain URL
+        const webhookUrl = `https://legendary-chainsaw.onrender.com/api/telegram-webhook`;
         console.log('🔧 Setting webhook to:', webhookUrl);
         
         const result = await bot.setWebHook(webhookUrl, {
