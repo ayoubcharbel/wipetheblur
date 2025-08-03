@@ -78,6 +78,55 @@ async function handleUpdate(update) {
                 }
                 return;
             }
+            
+            if (msg.text === '/mystats') {
+                const userData = sharedData.getSharedUserData();
+                const user = userData[userId];
+                if (!user) {
+                    await bot.sendMessage(chatId, 'You haven\'t sent any messages or stickers yet!');
+                    return;
+                }
+                
+                const name = user.firstName + (user.lastName ? ` ${user.lastName}` : '');
+                const statsMessage = `📊 *Your Statistics* 📊
+
+👤 Name: ${name}
+${user.username ? `🔗 Username: @${user.username}\n` : ''}📝 Messages sent: ${user.messages}
+🎭 Stickers sent: ${user.stickers}
+🏅 Total score: ${user.totalScore}
+
+Keep chatting to improve your rank! 🚀`;
+                
+                await bot.sendMessage(chatId, statsMessage, { parse_mode: 'Markdown' });
+                console.log('✅ Personal stats message sent');
+                return;
+            }
+            
+            if (msg.text === '/help') {
+                const helpMessage = `🤖 *Activity Tracker Bot Help*
+
+*What I do:*
+I track every message and sticker you send in this chat and award points for activity.
+
+*Scoring system:*
+📝 Message = 1 point
+🎭 Sticker = 1 point
+
+*Available commands:*
+/start - Welcome message and bot info
+/leaderboard - View current rankings
+/mystats - View your personal statistics
+/stats - View total statistics
+/help - Show this help message
+
+*Note:* Your scores accumulate over time and never reset!
+
+Happy chatting! 💬`;
+                
+                await bot.sendMessage(chatId, helpMessage, { parse_mode: 'Markdown' });
+                console.log('✅ Help message sent');
+                return;
+            }
         }
         
         // Track regular activity
