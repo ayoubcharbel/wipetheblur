@@ -16,8 +16,13 @@ function addUserActivity(userId, firstName, username, isSticker = false) {
         username: username || 'Unknown'
     };
     
+    console.log(`📝 Adding activity for user ${firstName} (${userId}), isSticker: ${isSticker}`);
     const user = sharedData.updateUserScore(userId, userInfo, isSticker);
     console.log(`✅ User ${firstName}: ${user.totalScore} points`);
+    
+    // Force save data
+    sharedData.saveUserData();
+    console.log(`💾 Data saved for user ${firstName}`);
 }
 
 function getStats() {
@@ -55,35 +60,15 @@ async function handleUpdate(update) {
             
             if (msg.text === '/leaderboard') {
                 try {
-                    console.log('🏆 Processing /leaderboard command...');
-                    
                     // Load fresh data before generating leaderboard
                     sharedData.loadUserData();
-                    const stats = sharedData.getStats();
-                    console.log('📊 Current stats:', stats);
-                    
-                    if (stats.totalUsers === 0) {
-                        await bot.sendMessage(chatId, '📊 No users found yet! Send some messages to build the leaderboard! 🚀');
-                        console.log('✅ Empty leaderboard message sent');
-                        return;
-                    }
-                    
                     const leaderboard = sharedData.generateLeaderboard();
-                    console.log('📊 Generated leaderboard length:', leaderboard.length);
-                    console.log('📊 First 200 chars:', leaderboard.substring(0, 200));
-                    
-                    // Try sending without markdown first
-                    await bot.sendMessage(chatId, leaderboard);
-                    console.log('✅ Leaderboard message sent successfully');
+                    console.log('📊 Generated leaderboard:', leaderboard.substring(0, 100) + '...');
+                    await bot.sendMessage(chatId, leaderboard, { parse_mode: 'Markdown' });
+                    console.log('✅ Leaderboard message sent');
                 } catch (error) {
                     console.error('❌ Error with leaderboard:', error);
-                    console.error('❌ Error details:', error.message, error.stack);
-                    try {
-                        await bot.sendMessage(chatId, '❌ Error generating leaderboard. Trying simple version...');
-                        await bot.sendMessage(chatId, '🏆 Leaderboard:\n\nBot is tracking activity but having display issues. Use /stats to see total counts.');
-                    } catch (fallbackError) {
-                        console.error('❌ Even fallback failed:', fallbackError);
-                    }
+                    await bot.sendMessage(chatId, '❌ Sorry, there was an error generating the leaderboard. Please try again.');
                 }
                 return;
             }
