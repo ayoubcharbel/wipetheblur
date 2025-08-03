@@ -1,5 +1,8 @@
 {
   "version": 2,
+  "github": {
+    "silent": false
+  },
   "builds": [
     {
       "src": "api/**/*.js",
